@@ -369,11 +369,18 @@ public static class CustomTestSink implements SinkFunction<OrderEvent> {
     }
 }
 
-// In test method:
-CustomTestSink.values.clear(); // Fragile manual cleanup between test executions
-pipeline.addSink(new CustomTestSink());
-env.execute();
-assertEquals(2, CustomTestSink.values.size());
+@Test
+void shouldProcessOrdersEndToEnd() throws Exception {
+    StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+    CustomTestSink.values.clear(); // Fragile manual cleanup between test executions
+    orderPipeline.addSink(new CustomTestSink()).setParallelism(2);
+    env.execute();
+
+    assertEquals(2, CustomTestSink.values.size());
+    assertEquals("order-1", CustomTestSink.values.get(0).id);
+    assertEquals("order-2", CustomTestSink.values.get(1).id);
+}
 ```
 
   </TabItem>
