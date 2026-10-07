@@ -1,7 +1,78 @@
-import {themes as prismThemes} from 'prism-react-renderer';
+import {themes as prismThemes, type PrismTheme} from 'prism-react-renderer';
 import type {Config, Plugin} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import {generateLlmsFiles} from './scripts/generate-llms';
+
+const javaDarkTheme: PrismTheme = {
+  plain: {
+    color: '#bcbec4',
+    backgroundColor: '#1e1f22',
+  },
+  styles: [
+    {
+      types: ['keyword'],
+      style: {
+        color: '#cf8e6d',
+        fontWeight: 'bold',
+      },
+    },
+    {
+      types: ['annotation', 'attr-name'],
+      style: {
+        color: '#f3ce6d',
+      },
+    },
+    {
+      types: ['string'],
+      style: {
+        color: '#6aab73',
+      },
+    },
+    {
+      types: ['number'],
+      style: {
+        color: '#2aacb8',
+      },
+    },
+    {
+      types: ['function'],
+      style: {
+        color: '#56a8f5',
+      },
+    },
+    {
+      types: ['class-name'],
+      style: {
+        color: '#bcbec4',
+      },
+    },
+    {
+      types: ['comment'],
+      style: {
+        color: '#7a7e85',
+        fontStyle: 'italic',
+      },
+    },
+    {
+      types: ['property', 'key', 'atrule'],
+      style: {
+        color: '#cf8e6d',
+      },
+    },
+    {
+      types: ['punctuation'],
+      style: {
+        color: '#bcbec4',
+      },
+    },
+    {
+      types: ['operator'],
+      style: {
+        color: '#bcbec4',
+      },
+    },
+  ],
+};
 
 function llmsTxtPlugin(): Plugin {
   return {
@@ -122,8 +193,8 @@ const config: Config = {
       copyright: 'Copyright © 2026 Flinkboot. Released under the Apache 2.0 License.',
     },
     prism: {
-      theme: prismThemes.oneDark,
-      darkTheme: prismThemes.oneDark,
+      theme: javaDarkTheme,
+      darkTheme: javaDarkTheme,
       additionalLanguages: ['java', 'properties', 'yaml', 'bash', 'json'],
     },
   } satisfies Preset.ThemeConfig,

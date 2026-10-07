@@ -218,6 +218,12 @@ details.overview-section .overview-body {
   background-color: rgba(255, 255, 255, 0.03);
 }
 
+/* Ensure annotations and decorators stand out in vibrant yellow */
+.token.annotation,
+.token.annotation .token.punctuation {
+  color: #f3ce6d !important;
+}
+
 
 
 
