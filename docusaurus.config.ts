@@ -44,6 +44,7 @@ const config: Config = {
           routeBasePath: 'docs',
           editUrl: 'https://github.com/Sekelenao/Flinkboot-Documentation/tree/main/',
           lastVersion: 'current',
+          includeCurrentVersion: true,
           onlyIncludeVersions: ['current'],
           versions: {
             current: {

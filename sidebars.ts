@@ -9,10 +9,10 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: 'Setup & BOM',
+      label: 'Setup',
       collapsed: true,
       items: [
-        {type: 'doc', id: 'setup/compatibility', label: 'Compatibility Matrix'},
+        {type: 'doc', id: 'setup/compatibility', label: 'Compatibility'},
         {type: 'doc', id: 'setup/bom-managed-dependencies', label: 'BOM & Dependencies'},
         {type: 'doc', id: 'setup/avoid-dependency-conflicts', label: 'Classpath Conflicts'},
       ],

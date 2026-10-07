@@ -175,6 +175,49 @@ details.overview-section .overview-body {
   font-weight: 600;
 }
 
+/* Styled table perfectly harmonious with the dark background */
+.markdown table {
+  width: 100%;
+  display: table;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1.5rem 0;
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.markdown table thead tr {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.markdown table th {
+  color: #e3e8ef;
+  font-weight: 600;
+  padding: 0.9rem 1.25rem;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.92rem;
+}
+
+.markdown table td {
+  padding: 0.9rem 1.25rem;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.95rem;
+  color: #cbd5e1;
+}
+
+.markdown table tr:first-child td {
+  border-top: none;
+}
+
+.markdown table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
 
 
 
