@@ -13,7 +13,7 @@ const sidebars: SidebarsConfig = {
       collapsed: true,
       items: [
         {type: 'doc', id: 'setup/compatibility', label: 'Compatibility'},
-        {type: 'doc', id: 'setup/setup-a-project', label: 'Setup a Project'},
+        {type: 'doc', id: 'setup/setup-a-project', label: 'Installation'},
       ],
     },
     {

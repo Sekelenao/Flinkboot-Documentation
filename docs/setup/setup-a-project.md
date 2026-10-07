@@ -1,4 +1,4 @@
-# Setup a Project
+# Installation
 
 Learn how to configure your Maven `pom.xml` with the Flinkboot Bill of Materials (BOM), declare required modules, and package a production-ready Fat JAR.
 
