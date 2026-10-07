@@ -17,7 +17,25 @@ const javaDarkTheme: PrismTheme = {
       },
     },
     {
-      types: ['annotation', 'attr-name'],
+      types: ['tag', 'tag-name'],
+      style: {
+        color: '#e8bf6a',
+      },
+    },
+    {
+      types: ['attr-name'],
+      style: {
+        color: '#bcbec4',
+      },
+    },
+    {
+      types: ['attr-value'],
+      style: {
+        color: '#6aab73',
+      },
+    },
+    {
+      types: ['annotation'],
       style: {
         color: '#f3ce6d',
       },
@@ -51,6 +69,12 @@ const javaDarkTheme: PrismTheme = {
       style: {
         color: '#7a7e85',
         fontStyle: 'italic',
+      },
+    },
+    {
+      types: ['variable', 'constant'],
+      style: {
+        color: '#c77dbb',
       },
     },
     {

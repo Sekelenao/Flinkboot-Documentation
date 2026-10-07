@@ -224,6 +224,31 @@ details.overview-section .overview-body {
   color: #f3ce6d !important;
 }
 
+/* Variables, fields, and constants in IDE violet */
+.token.variable,
+.token.constant {
+  color: #c77dbb !important;
+}
+
+/* XML / HTML tags, attributes, and values */
+.token.tag,
+.token.tag .token.tag {
+  color: #e8bf6a !important;
+}
+
+.token.tag .token.punctuation {
+  color: #e8bf6a !important;
+}
+
+.token.attr-name {
+  color: #bcbec4 !important;
+}
+
+.token.attr-value,
+.token.attr-value .token.punctuation {
+  color: #6aab73 !important;
+}
+
 
 
 
