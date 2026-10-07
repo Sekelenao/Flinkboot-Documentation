@@ -348,7 +348,7 @@ try (var baos = new ByteArrayOutputStream();
 <summary>8. Deterministic in-memory stream testing</summary>
 <div className="overview-body">
 
-Testing Apache Flink streaming pipelines in JUnit 5 typically requires writing custom test sink functions with thread-synchronized static lists, creating flaky tests and state pollution. Flinkboot provides `CollectingSink`, an auto-closeable in-memory sink that safely collects records across parallel subtasks using Java's `try-with-resources`.
+For isolated operator logic (state, timers, watermarks), Flink's test harnesses (`KeyedOneInputStreamOperatorTestHarness`, etc.) remain the fastest choice without spinning up a cluster. However, validating complete multi-operator DAG wiring, key partitioning, and end-to-end integration requires running an in-memory MiniCluster (`env.execute()`). Because mini-cluster executions spawn threads and consume JVM resources, tests frequently suffered from flaky static lists or thread leaks. Flinkboot provides `CollectingSink`, an auto-closeable in-memory sink that safely collects records across parallel subtasks during pipeline execution with leak-free `try-with-resources` cleanup.
 
 <Tabs>
   <TabItem value="flinkboot" label="With Flinkboot" default>
