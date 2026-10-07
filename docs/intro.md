@@ -15,9 +15,7 @@ Building Apache Flink applications should feel as clean, safe, and productive as
 
 ---
 
-<details className="overview-section">
-<summary>1. Type-safe configuration DTOs</summary>
-<div className="overview-body">
+## 1. Type-safe configuration DTOs
 
 Flinkboot ships with pre-built, production-tested DTOs for the execution environment (`JobProperties`) and official connectors (`KafkaSourceProperties`, `FlussSourceProperties`). Simply assemble them with your own domain records or POJOs with full Jakarta Bean Validation (`@NotNull`, `@Valid`), with no manual Jackson parsing required.
 
@@ -63,12 +61,9 @@ String email = root.path("alerting").path("notification-email").asText();
   </TabItem>
 </Tabs>
 
-</div>
-</details>
+---
 
-<details className="overview-section">
-<summary>2. Declarative YAML schema</summary>
-<div className="overview-body">
+## 2. Declarative YAML schema
 
 Your configuration files map 1:1 to your type-safe DTOs. Instead of scattering parameters across ad-hoc CLI arguments, Java System Properties, and flat properties files, Flinkboot organizes everything into a hierarchical YAML contract supporting profile activation, parameter placeholders, and environment variable substitution.
 
@@ -136,12 +131,9 @@ alerting:
   </TabItem>
 </Tabs>
 
-</div>
-</details>
+---
 
-<details className="overview-section">
-<summary>3. Fail-fast application bootstrap</summary>
-<div className="overview-body">
+## 3. Fail-fast application bootstrap
 
 Instead of handwriting hundreds of lines of imperative setup code, Flinkboot bootstraps your entire application in a single statement. Even if you've never configured RocksDB state backends, unaligned checkpoints, latency metrics, or exponential backoff restart strategies before, they are already built-in, pre-tuned for production, and ready to be declared in your YAML with zero plumbing code required.
 
@@ -150,14 +142,16 @@ Instead of handwriting hundreds of lines of imperative setup code, Flinkboot boo
 
 ```java
 public static void main(String[] args) throws Exception {
-    // 1. One-line bootstrap: loads YAML, resolves env vars, validates constraints fail-fast
-    AppConfig config = Flinkboot.initialize(AppConfig.class, args);
+    // 1. Initialize Flinkboot with CLI arguments
+    Flinkboot boot = Flinkboot.initialize(args);
 
-    // 2. Production-ready out of the box: applies RocksDB, checkpointing, latency tracking,
-    // and restart strategies directly from your YAML without writing a single line of setup code
-    StreamExecutionEnvironment env = ExecutionEnvironmentFactory.create(config.job());
+    // 2. Load and validate YAML configurations fail-fast into your type-safe record
+    AppConfig config = boot.configuration(AppConfig.class);
 
-    // 3. Run pipeline
+    // 3. Pre-configured environment: RocksDB, checkpoints, restarts from YAML in one call
+    StreamExecutionEnvironment env = boot.executionEnvironment(config.job());
+
+    // 4. Run pipeline
     env.execute(config.job().name());
 }
 ```
@@ -185,12 +179,9 @@ public static void main(String[] args) throws Exception {
   </TabItem>
 </Tabs>
 
-</div>
-</details>
+---
 
-<details className="overview-section">
-<summary>4. Turnkey production connectors</summary>
-<div className="overview-body">
+## 4. Turnkey production connectors
 
 Instantiating sources and sinks in vanilla Flink requires verbose builders, duplicate properties, and manual schema binding. Flinkboot connector factories create fully tuned sources and sinks directly from your validated configuration objects with native serializer resolution.
 
@@ -199,9 +190,9 @@ Instantiating sources and sinks in vanilla Flink requires verbose builders, dupl
 
 ```java
 // Instantiates a fully configured, production-ready KafkaSource in one line
-KafkaSource<OrderEvent> source = KafkaSourceFactory.create(
+KafkaSource<OrderEvent> source = KafkaSourceFactory.supplyFor(
     config.kafkaSource(), 
-    OrderEvent.class
+    deserializationSchema
 );
 ```
 
@@ -223,12 +214,9 @@ KafkaSource<OrderEvent> source = KafkaSource.<OrderEvent>builder()
   </TabItem>
 </Tabs>
 
-</div>
-</details>
+---
 
-<details className="overview-section">
-<summary>5. Native collection & JDK serialization</summary>
-<div className="overview-body">
+## 5. Native collection & JDK serialization
 
 In vanilla Flink, collections like `List<String>` inside a POJO silently fall back to Kryo serialization because Flink's type extractor cannot resolve generic parameters. Flinkboot provides turnkey `TypeInfoFactory` classes to guarantee high-throughput, native Flink serializers.
 
@@ -262,12 +250,9 @@ public class OrderEvent {
   </TabItem>
 </Tabs>
 
-</div>
-</details>
+---
 
-<details className="overview-section">
-<summary>6. Build-time POJO compliance auditing</summary>
-<div className="overview-body">
+## 6. Build-time POJO compliance auditing
 
 Apache Flink relies on its high-performance `PojoSerializer` to achieve maximum streaming throughput. If an event class lacks a default constructor, contains an unmapped collection, or misses getters/setters, Flink silently falls back to slow Kryo serialization without failing. Flinkboot provides build-time assertions to guarantee POJO compliance in your unit tests.
 
@@ -300,12 +285,9 @@ TypeInformation<OrderEvent> ti = TypeInformation.of(OrderEvent.class);
   </TabItem>
 </Tabs>
 
-</div>
-</details>
+---
 
-<details className="overview-section">
-<summary>7. Java serialization compliance assertion</summary>
-<div className="overview-body">
+## 7. Java serialization compliance assertion
 
 Flink operators and user-defined functions (`ProcessFunction`, `MapFunction`, `KeySelector`) are serialized via standard Java serialization and shipped over the network to remote TaskManagers. An unintentionally captured non-serializable field (logger, open connection, outer class reference) crashes your job at submission. Flinkboot lets you verify full serialization round-trips in unit tests.
 
@@ -341,12 +323,9 @@ try (var baos = new ByteArrayOutputStream();
   </TabItem>
 </Tabs>
 
-</div>
-</details>
+---
 
-<details className="overview-section">
-<summary>8. Deterministic in-memory stream testing</summary>
-<div className="overview-body">
+## 8. Deterministic in-memory stream testing
 
 For isolated operator logic (state, timers, watermarks), Flink's test harnesses (`KeyedOneInputStreamOperatorTestHarness`, etc.) remain the fastest choice without spinning up a cluster. However, validating complete multi-operator DAG wiring, key partitioning, and end-to-end integration requires running an in-memory MiniCluster (`env.execute()`). Because mini-cluster executions spawn threads and consume JVM resources, tests frequently suffered from flaky static lists or thread leaks. Flinkboot provides `CollectingSink`, an auto-closeable in-memory sink that safely collects records across parallel subtasks during pipeline execution with leak-free `try-with-resources` cleanup.
 
@@ -396,6 +375,3 @@ assertEquals(2, CustomTestSink.values.size());
 
   </TabItem>
 </Tabs>
-
-</div>
-</details>
