@@ -2,6 +2,9 @@
 sidebar_position: 1
 slug: /
 title: Overview
+description: Declarative configuration, fail-fast bootstrapping, and native zero-Kryo serialization for Apache Flink applications.
+keywords: [apache flink, flinkboot, flink configuration, spring boot flink, streaming, rocksdb, flink kafka connector, zero kryo]
+image: img/flinkboot-social-card.png
 ---
 
 import Tabs from '@theme/Tabs';

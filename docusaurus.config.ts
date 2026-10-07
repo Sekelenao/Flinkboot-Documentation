@@ -14,7 +14,7 @@ function llmsTxtPlugin(): Plugin {
 
 const config: Config = {
   title: 'Flinkboot',
-  tagline: 'Faster, safer configuration for Apache Flink jobs',
+  tagline: 'Faster, safer. The Flink framework.',
   favicon: 'img/logo.svg',
 
   future: {
@@ -70,7 +70,22 @@ const config: Config = {
         autoCollapseCategories: true,
       },
     },
-    image: 'img/logo.svg',
+    image: 'img/flinkboot-social-card.png',
+    metadata: [
+      {
+        name: 'description',
+        content:
+          'Fail fast on configuration, serialize natively without Kryo, and bootstrap Apache Flink stream pipelines with zero boilerplate.',
+      },
+      {
+        property: 'og:image:alt',
+        content: 'Flinkboot Logo — Faster, safer. The Flink framework.',
+      },
+      {
+        name: 'twitter:image:alt',
+        content: 'Flinkboot Logo — Faster, safer. The Flink framework.',
+      },
+    ],
     colorMode: {
       defaultMode: 'dark',
       disableSwitch: true,
