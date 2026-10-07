@@ -3,24 +3,21 @@
  */
 
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 92%;
+  --ifm-code-font-size: 94%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 
-  /* Compact and refined typography */
-  --ifm-h1-font-size: 1.85rem;
-  --ifm-h2-font-size: 1.35rem;
-  --ifm-h3-font-size: 1.12rem;
-  --ifm-h4-font-size: 1rem;
-  --ifm-menu-link-padding-vertical: 0.35rem;
-  --ifm-menu-link-padding-horizontal: 0.65rem;
+  /* Large, spacious typography scale */
+  --ifm-font-size-base: 18px;
+  --ifm-line-height-base: 1.72;
+  --ifm-h1-font-size: 2.25rem;
+  --ifm-h2-font-size: 1.65rem;
+  --ifm-h3-font-size: 1.35rem;
+  --ifm-h4-font-size: 1.15rem;
+  --ifm-menu-link-padding-vertical: 0.4rem;
+  --ifm-menu-link-padding-horizontal: 0.7rem;
 }
+
+
 
 [data-theme='dark'] {
   --ifm-color-primary: #25c2a0;
@@ -31,19 +28,31 @@
   --ifm-color-primary-lighter: #32d8b4;
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+
+  /* Unify page background with footer background */
+  --ifm-background-color: var(--ifm-footer-background-color);
 }
 
 .theme-doc-sidebar-container {
   border-right: 1px solid var(--ifm-toc-border-color);
 }
 
-/* Crisp and sober headings in markdown */
 .markdown h1:first-child {
-  font-size: 1.85rem;
+  font-size: 2.35rem;
   font-weight: 750;
   letter-spacing: -0.02em;
   margin-bottom: 1.25rem;
 }
+
+/* Standout hero punchline under doc title */
+.hero-punchline {
+  font-size: 1.28rem;
+  line-height: 1.65;
+  font-weight: 450;
+  color: var(--ifm-font-color-base);
+  margin-bottom: 1.75rem;
+}
+
 
 .markdown h2 {
   font-size: 1.35rem;
@@ -94,6 +103,51 @@
 .navbar__items--right > [class*='colorModeToggle'] {
   margin-left: 1.25rem;
 }
+
+/* Clean, understated accordion styles for Overview sections */
+details.overview-section {
+  --docusaurus-details-decoration-color: currentColor;
+  background-color: transparent;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  padding: 0.9rem 1.15rem;
+  margin-bottom: 1rem;
+}
+
+details.overview-section[open] {
+  border-color: var(--ifm-color-emphasis-500);
+}
+
+details.overview-section > summary {
+  font-size: 1.2rem;
+  font-weight: 650;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  color: var(--ifm-heading-color);
+}
+
+details.overview-section .overview-body {
+  margin-top: 1rem;
+  padding-top: 0.25rem;
+}
+
+/* Tabs styling - neutral, simple underlines, no color glow */
+.tabs {
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.tabs__item {
+  font-weight: 500;
+  border-bottom-width: 2px;
+}
+
+.tabs__item--active {
+  border-bottom-color: var(--ifm-heading-color);
+  color: var(--ifm-heading-color);
+  font-weight: 600;
+}
+
 
 
 

@@ -43,10 +43,10 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           routeBasePath: 'docs',
           editUrl: 'https://github.com/Sekelenao/Flinkboot-Documentation/tree/main/',
-          lastVersion: '0.5.0',
-          onlyIncludeVersions: ['0.5.0'],
+          lastVersion: 'current',
+          onlyIncludeVersions: ['current'],
           versions: {
-            '0.5.0': {
+            current: {
               label: '0.5.0-1.20',
               path: '',
               banner: 'none',
@@ -73,7 +73,7 @@ const config: Config = {
     image: 'img/logo.svg',
     colorMode: {
       defaultMode: 'dark',
-      disableSwitch: false,
+      disableSwitch: true,
       respectPrefersColorScheme: false,
     },
     navbar: {
@@ -106,8 +106,8 @@ const config: Config = {
       copyright: 'Copyright © 2026 Flinkboot. Released under the Apache 2.0 License.',
     },
     prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      theme: prismThemes.oneDark,
+      darkTheme: prismThemes.oneDark,
       additionalLanguages: ['java', 'properties', 'yaml', 'bash', 'json'],
     },
   } satisfies Preset.ThemeConfig,

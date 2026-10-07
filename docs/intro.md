@@ -4,107 +4,356 @@ slug: /
 title: Overview
 ---
 
-# Flinkboot
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-> **The Bootstrapping & Reliability Framework for Apache Flink.**  
-> Fail fast on configuration, serialize natively without Kryo, and bootstrap stream pipelines with zero boilerplate.
+# Overview
 
-[![Java](https://img.shields.io/badge/Java_11%2B-%23ED8B00.svg?logo=openjdk&logoColor=white)](https://docs.oracle.com/en/java/javase/11/docs/api/index.html)
-[![Flink](https://img.shields.io/badge/Flink_1.20-%23E6526F.svg?logo=apacheflink&logoColor=white)](https://flink.apache.org/)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.sekelenao/flinkboot-core?label=Maven%20central&logo=apachemaven&logoColor=white&color=C71A36&labelColor=C71A36)](https://central.sonatype.com/artifact/io.github.sekelenao/flinkboot-core)
+<div className="hero-punchline">
+Building Apache Flink applications should feel as clean, safe, and productive as writing modern Spring Boot backend services. Once you experience declarative bootstrapping, fail-fast configuration, and zero-Kryo guarantees, you will never write manual Flink boilerplate again.
+</div>
 
 ---
 
-## What is Flinkboot?
+<details className="overview-section">
+<summary>1. Type-Safe Configuration DTOs</summary>
+<div className="overview-body">
 
-**Flinkboot** is a comprehensive, production-grade development and reliability framework designed to bootstrap, configure, and secure Apache Flink applications with **zero boilerplate**.
+Flinkboot ships with pre-built, production-tested DTOs for the execution environment (`JobProperties`) and official connectors (`KafkaSourceProperties`, `FlussSourceProperties`). Simply assemble them with your own domain records or POJOs with full Jakarta Bean Validation (`@NotNull`, `@Valid`), with no manual Jackson parsing required.
 
-In standard Flink deployments, misconfigurations, missing parameters, state backend errors, and silent fallbacks to slow Kryo serialization often go unnoticed until runtime, leading to costly cluster failures or degraded pipeline throughput. Flinkboot eliminates these risks before your code ever reaches the TaskManagers.
-
-### 🔴 Before
-
-```java
-public static void main(String[] args) throws Exception {
-    // 1. Manual YAML parsing with Jackson (untyped tree navigation, zero validation, fails on first missing key)
-    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    JsonNode yaml = mapper.readTree(new File("job-configuration.yaml"));
-    String brokers = yaml.get("kafka").get("brokers").asText();
-    String topic = yaml.get("kafka").get("topic").asText();
-    long checkpointInterval = yaml.get("checkpoint").get("interval").asLong();
-
-    // 2. Imperative environment setup (hardcoded: adding Web UI, latency tracking, or unaligned checkpoints requires code change & redeployment)
-    StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-    env.enableCheckpointing(checkpointInterval);
-    env.getCheckpointConfig().setCheckpointTimeout(60000L);
-    env.setStateBackend(new EmbeddedRocksDBStateBackend(true));
-    env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3, Time.seconds(10)));
-
-    // 3. Rigid manual connector builder (unverified OrderEvent could silently fall back to slow Kryo)
-    KafkaSource<OrderEvent> source = KafkaSource.<OrderEvent>builder()
-            .setBootstrapServers(brokers)
-            .setTopics(topic)
-            .setGroupId("order-service")
-            .setStartingOffsets(OffsetsInitializer.latest())
-            .setDeserializer(new OrderEventDeserializationSchema())
-            .build();
-
-    env.fromSource(source, WatermarkStrategy.noWatermarks(), "kafka-source").print();
-    env.execute("LegacyJob");
-}
-```
-
-### 🟢 With Flinkboot
+<Tabs>
+  <TabItem value="flinkboot" label="With Flinkboot" default>
 
 ```java
-// 1. Build-time guarantee in unit tests: fails build if OrderEvent could fall back to slow Kryo
-@Test
-void verifyPojoCompliance() {
-    FlinkbootAssertions.assertThat(OrderEvent.class).isPojo();
-}
-
-// 2. User-defined composed configuration (record or class): assemble independent blocks like Legos
-public record AppConfiguration(
-    // 100% validated fail-fast & covers every Flink environment setting (RocksDB, restart, checkpoints...)
+// Composed application configuration record
+public record AppConfig(
+    // Built-in Flinkboot DTO: covers RocksDB, restart strategies, metrics, checkpoints
     @Valid @NotNull @JsonProperty("job") JobProperties job,
 
-    // 100% validated fail-fast & exhaustively covers the connector options with raw escape hatch
-    @Valid @NotNull @JsonProperty("kafka-source") KafkaSourceProperties kafkaSource
+    // Built-in Flinkboot DTO: covers brokers, topics, offset strategies, vendor escape-hatch
+    @Valid @NotNull @JsonProperty("kafka-source") KafkaSourceProperties kafkaSource,
+
+    // Your custom business domain settings (records or POJOs with Bean Validation)
+    @Valid @NotNull @JsonProperty("alerting") AlertingProperties alerting
 ) {}
+```
 
-// 3. One-line bootstrap: loads YAML, resolves ${ENV} variables, validates Jakarta Bean Constraints fail-fast
+  </TabItem>
+  <TabItem value="standard" label="Standard Flink">
+
+```java
+// Untyped, error-prone manual Jackson tree traversal
+ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+JsonNode root = mapper.readTree(new File("application.yaml"));
+
+// Cryptic NullPointerExceptions at runtime if a single key is missing or misspelled
+String jobName = root.path("job").path("name").asText();
+int parallelism = root.path("job").path("parallelism").asInt(1);
+long checkpointInterval = root.path("job").path("checkpointing").path("interval").asLong();
+
+String brokers = root.path("kafka-source").path("bootstrap-servers").asText();
+String topic = root.path("kafka-source").path("topics").get(0).asText();
+String groupId = root.path("kafka-source").path("group-id").asText();
+
+// Hand-rolled parsing and fragile validation for business fields
+double threshold = root.path("alerting").path("threshold-amount").asDouble();
+String email = root.path("alerting").path("notification-email").asText();
+```
+
+  </TabItem>
+</Tabs>
+
+</div>
+</details>
+
+<details className="overview-section">
+<summary>2. Declarative YAML Schema</summary>
+<div className="overview-body">
+
+Your configuration files map 1:1 to your type-safe DTOs. Instead of scattering parameters across ad-hoc CLI arguments, Java System Properties, and flat properties files, Flinkboot organizes everything into a hierarchical YAML contract supporting profile activation, parameter placeholders, and environment variable substitution.
+
+<Tabs>
+  <TabItem value="flinkboot" label="With Flinkboot" default>
+
+```yaml
+# application.yaml - Maps 1:1 to your AppConfig DTO
+job:
+  name: "order-fraud-detector"
+  parallelism: 8
+  checkpointing:
+    interval: 60000
+    timeout: 120000
+  state-backend:
+    type: "rocksdb"
+    incremental: true
+
+kafka-source:
+  name: "fraud-orders-source"
+  bootstrap-servers:
+    - "kafka-1.internal.net:9092"
+    - "kafka-2.internal.net:9092"
+  topics:
+    - "orders-v1"
+  group-id: "fraud-detector-service"
+  starting-offsets:
+    strategy: LATEST
+  # Universal escape hatch for vendor client tuning & SSL credentials
+  properties:
+    security.protocol: "SSL"
+    ssl.truststore.location: "/var/private/ssl/kafka.truststore.jks"
+    # Auto-templated at runtime from host or container environment variables
+    ssl.truststore.password: "${KAFKA_TRUSTSTORE_PASSWORD}"
+    fetch.max.wait.ms: "500"
+
+alerting:
+  threshold-amount: 5000.00
+  notification-email: "fraud-alerts@company.com"
+```
+
+  </TabItem>
+  <TabItem value="standard" label="Standard Flink">
+
+```text
+# Hardcoded, flat properties or repetitive CLI flags
+--job.name order-fraud-detector \
+--parallelism 8 \
+--checkpoint.interval 60000 \
+--rocksdb.incremental true \
+--kafka.bootstrap.servers kafka-1.internal.net:9092,kafka-2.internal.net:9092 \
+--kafka.topics orders-v1 \
+--kafka.group.id fraud-detector-service \
+--kafka.properties.security.protocol SSL \
+--kafka.properties.ssl.truststore.location /var/private/ssl/kafka.truststore.jks \
+--kafka.properties.ssl.truststore.password ${KAFKA_TRUSTSTORE_PASSWORD} \
+--kafka.properties.fetch.max.wait.ms 500 \
+--alerting.threshold-amount 5000.00 \
+--alerting.notification-email fraud-alerts@company.com
+
+# Fragile CLI parsing, lacks hierarchy, and offers zero validation
+# when a parameter is misspelled or missing at runtime.
+```
+
+  </TabItem>
+</Tabs>
+
+</div>
+</details>
+
+<details className="overview-section">
+<summary>3. Fail-Fast Application Bootstrap</summary>
+<div className="overview-body">
+
+Instead of handwriting hundreds of lines of imperative setup code, Flinkboot bootstraps your entire application in a single statement. Even if you've never configured RocksDB state backends, unaligned checkpoints, latency metrics, or exponential backoff restart strategies before, they are already built-in, pre-tuned for production, and ready to be declared in your YAML with zero plumbing code required.
+
+<Tabs>
+  <TabItem value="flinkboot" label="With Flinkboot" default>
+
+```java
 public static void main(String[] args) throws Exception {
-    AppConfiguration config = Flinkboot.initialize(AppConfiguration.class, args);
+    // 1. One-line bootstrap: loads YAML, resolves env vars, validates constraints fail-fast
+    AppConfig config = Flinkboot.initialize(AppConfig.class, args);
 
-    // Instant zero-boilerplate environment creation with all RocksDB, metrics & restart rules applied
+    // 2. Production-ready out of the box: applies RocksDB, checkpointing, latency tracking,
+    // and restart strategies directly from your YAML without writing a single line of setup code
     StreamExecutionEnvironment env = ExecutionEnvironmentFactory.create(config.job());
 
-    // Instant connector instantiation from strongly typed, fully validated configuration
-    KafkaSource<OrderEvent> source = KafkaSourceFactory.create(config.kafkaSource(), OrderEvent.class);
-
-    env.fromSource(source, WatermarkStrategy.noWatermarks(), "kafka-source").print();
+    // 3. Run pipeline
     env.execute(config.job().name());
 }
 ```
 
----
+  </TabItem>
+  <TabItem value="standard" label="Standard Flink">
 
-## Key Pillars
+```java
+public static void main(String[] args) throws Exception {
+    ParameterTool params = ParameterTool.fromArgs(args);
+    StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-1. **Fail-Fast Configuration**: Merges multiple YAML files, CLI arguments, and environment variables with strict Jackson & Jakarta Bean Validation before Flink starts.
-2. **Zero Kryo Fallback**: Built-in test assertions recursively audit POJOs to guarantee high-performance Flink serializers are used.
-3. **Turnkey Connectors**: Type-safe factories for Apache Kafka, Apache Fluss, and more with standardized YAML schemas and escape hatches for vendor tuning.
-4. **Testing Productivity**: `CollectingSink` and test helpers let you assert stream outputs in JUnit 5 unit and integration tests without mocks or flakiness.
+    // Imperative wiring scattered across the main method
+    env.setParallelism(params.getInt("parallelism", 1));
+    env.enableCheckpointing(params.getLong("checkpoint.interval", 60000L));
+    env.getCheckpointConfig().setCheckpointTimeout(params.getLong("checkpoint.timeout", 120000L));
+    env.setStateBackend(new EmbeddedRocksDBStateBackend(true));
+    env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3, Time.seconds(10)));
 
----
+    // Misconfigurations and type mismatches crash only after job submission
+    env.execute("LegacyJob");
+}
+```
 
-## Documentation Index
+  </TabItem>
+</Tabs>
 
-Explore the step-by-step guides by domain:
+</div>
+</details>
 
-- **[Project Setup & Packaging](./setup/bom-managed-dependencies.md)**: Dependency management with Flinkboot BOM and shading best practices.
-- **[Configuration & Environment](./configuration/load-configurations.md)**: Declarative YAML loading, environment variables, and execution environment creation.
-- **[Apache Kafka Connector](./kafka/configure-kafka-source.md)**: Sources and sinks with delivery guarantees and offset strategies.
-- **[Apache Fluss Connector](./fluss/configure-fluss-source.md)**: Lakehouse streaming sources and sinks with snapshot strategies.
-- **[Serialization](./serialization/serialize-jdk-types.md)**: Native serialization for JDK types and POJOs.
-- **[Testing](./testing/assert-pojo-compliance.md)**: POJO auditing, serialization verification, and stream collection in tests.
-- **[Compatibility Matrix](./compatibility.md)**: Supported Apache Flink and Java runtime versions.
+<details className="overview-section">
+<summary>4. Turnkey Production Connectors</summary>
+<div className="overview-body">
+
+Instantiating sources and sinks in vanilla Flink requires verbose builders, duplicate properties, and manual schema binding. Flinkboot connector factories create fully tuned sources and sinks directly from your validated configuration objects with native serializer resolution.
+
+<Tabs>
+  <TabItem value="flinkboot" label="With Flinkboot" default>
+
+```java
+// Instantiates a fully configured, production-ready KafkaSource in one line
+KafkaSource<OrderEvent> source = KafkaSourceFactory.create(
+    config.kafkaSource(), 
+    OrderEvent.class
+);
+```
+
+  </TabItem>
+  <TabItem value="standard" label="Standard Flink">
+
+```java
+// Repetitive builder with manual string mappings and custom deserializers
+KafkaSource<OrderEvent> source = KafkaSource.<OrderEvent>builder()
+    .setBootstrapServers(brokers)
+    .setTopics(topic)
+    .setGroupId(groupId)
+    .setStartingOffsets(OffsetsInitializer.latest())
+    .setValueOnlyDeserializer(new OrderEventDeserializationSchema())
+    .setProperty("enable.auto.commit", "false")
+    .build();
+```
+
+  </TabItem>
+</Tabs>
+
+</div>
+</details>
+
+<details className="overview-section">
+<summary>5. Native Collection & JDK Serialization</summary>
+<div className="overview-body">
+
+In vanilla Flink, collections like `List<String>` inside a POJO silently fall back to Kryo serialization because Flink's type extractor cannot resolve generic parameters. Flinkboot provides turnkey `TypeInfoFactory` classes to guarantee high-throughput, native Flink serializers.
+
+<Tabs>
+  <TabItem value="flinkboot" label="With Flinkboot" default>
+
+```java
+public class OrderEvent {
+    public String id;
+
+    // Instructs Flink to resolve List<E> natively as Types.LIST(Types.STRING)
+    @TypeInfo(ListTypeInfoFactory.class)
+    public List<String> tags;
+}
+```
+
+  </TabItem>
+  <TabItem value="standard" label="Standard Flink">
+
+```java
+public class OrderEvent {
+    public String id;
+    public List<String> tags; // Flink cannot extract generic parameter E!
+}
+
+// In standard Flink, TypeInformation.of(OrderEvent.class) silently assigns
+// GenericTypeInfo (Kryo) to the tags field, degrading streaming throughput
+// by 3x to 10x and breaking savepoint state schema evolution.
+```
+
+  </TabItem>
+</Tabs>
+
+</div>
+</details>
+
+<details className="overview-section">
+<summary>6. Build-Time POJO Compliance Auditing</summary>
+<div className="overview-body">
+
+Apache Flink relies on its high-performance `PojoSerializer` to achieve maximum streaming throughput. If an event class lacks a default constructor, contains an unmapped collection, or misses getters/setters, Flink silently falls back to slow Kryo serialization without failing. Flinkboot provides build-time assertions to guarantee POJO compliance in your unit tests.
+
+<Tabs>
+  <TabItem value="flinkboot" label="With Flinkboot" default>
+
+```java
+@Test
+void verifyOrderEventSerialization() {
+    // Build-time guarantee: recursively audits all fields, getters, and constructors
+    // Fails the test immediately if any field falls back to Kryo
+    FlinkbootAssertions.assertThat(OrderEvent.class)
+        .isPojo();
+}
+```
+
+  </TabItem>
+  <TabItem value="standard" label="Standard Flink">
+
+```java
+// No build-time guarantee in standard Flink!
+// Developers either discover severe performance degradation in production,
+// or attempt brittle runtime TypeInformation inspection:
+TypeInformation<OrderEvent> ti = TypeInformation.of(OrderEvent.class);
+
+// Returns GenericTypeInfo silently in production when POJO rules are violated,
+// slowing down streaming pipelines by 3x to 10x without any explicit error.
+```
+
+  </TabItem>
+</Tabs>
+
+</div>
+</details>
+
+<details className="overview-section">
+<summary>7. Deterministic Stream Integration Testing</summary>
+<div className="overview-body">
+
+Testing Apache Flink streaming pipelines in JUnit 5 typically requires writing custom test sink functions with thread-synchronized static lists, creating flaky tests and state pollution. Flinkboot provides `CollectingSink`, an auto-closeable in-memory sink that safely collects records across parallel subtasks using Java's `try-with-resources`.
+
+<Tabs>
+  <TabItem value="flinkboot" label="With Flinkboot" default>
+
+```java
+@Test
+void shouldProcessOrdersEndToEnd() throws Exception {
+    StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+    // AutoCloseable in-memory sink prevents thread leaks and test pollution
+    try (var sink = new CollectingSink<OrderEvent>()) {
+        orderPipeline.sinkTo(sink).setParallelism(2);
+        env.execute();
+
+        var elements = sink.elements();
+        assertThat(elements)
+            .hasSize(2)
+            .extracting(OrderEvent::id)
+            .containsExactlyInAnyOrder("order-1", "order-2");
+    }
+}
+```
+
+  </TabItem>
+  <TabItem value="standard" label="Standard Flink">
+
+```java
+// Requires writing custom TestSink implementations with static synchronized lists:
+public static class CustomTestSink implements SinkFunction<OrderEvent> {
+    public static final List<OrderEvent> values = Collections.synchronizedList(new ArrayList<>());
+
+    @Override
+    public void invoke(OrderEvent value, Context context) {
+        values.add(value); // Prone to concurrency race conditions and test pollution across runs
+    }
+}
+
+// In test method:
+CustomTestSink.values.clear(); // Fragile manual cleanup between test executions
+pipeline.addSink(new CustomTestSink());
+env.execute();
+assertEquals(2, CustomTestSink.values.size());
+```
+
+  </TabItem>
+</Tabs>
+
+</div>
+</details>
