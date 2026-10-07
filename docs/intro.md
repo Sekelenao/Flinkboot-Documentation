@@ -16,7 +16,7 @@ Building Apache Flink applications should feel as clean, safe, and productive as
 ---
 
 <details className="overview-section">
-<summary>1. Type-Safe Configuration DTOs</summary>
+<summary>1. Type-safe configuration DTOs</summary>
 <div className="overview-body">
 
 Flinkboot ships with pre-built, production-tested DTOs for the execution environment (`JobProperties`) and official connectors (`KafkaSourceProperties`, `FlussSourceProperties`). Simply assemble them with your own domain records or POJOs with full Jakarta Bean Validation (`@NotNull`, `@Valid`), with no manual Jackson parsing required.
@@ -67,7 +67,7 @@ String email = root.path("alerting").path("notification-email").asText();
 </details>
 
 <details className="overview-section">
-<summary>2. Declarative YAML Schema</summary>
+<summary>2. Declarative YAML schema</summary>
 <div className="overview-body">
 
 Your configuration files map 1:1 to your type-safe DTOs. Instead of scattering parameters across ad-hoc CLI arguments, Java System Properties, and flat properties files, Flinkboot organizes everything into a hierarchical YAML contract supporting profile activation, parameter placeholders, and environment variable substitution.
@@ -140,7 +140,7 @@ alerting:
 </details>
 
 <details className="overview-section">
-<summary>3. Fail-Fast Application Bootstrap</summary>
+<summary>3. Fail-fast application bootstrap</summary>
 <div className="overview-body">
 
 Instead of handwriting hundreds of lines of imperative setup code, Flinkboot bootstraps your entire application in a single statement. Even if you've never configured RocksDB state backends, unaligned checkpoints, latency metrics, or exponential backoff restart strategies before, they are already built-in, pre-tuned for production, and ready to be declared in your YAML with zero plumbing code required.
@@ -189,7 +189,7 @@ public static void main(String[] args) throws Exception {
 </details>
 
 <details className="overview-section">
-<summary>4. Turnkey Production Connectors</summary>
+<summary>4. Turnkey production connectors</summary>
 <div className="overview-body">
 
 Instantiating sources and sinks in vanilla Flink requires verbose builders, duplicate properties, and manual schema binding. Flinkboot connector factories create fully tuned sources and sinks directly from your validated configuration objects with native serializer resolution.
@@ -227,7 +227,7 @@ KafkaSource<OrderEvent> source = KafkaSource.<OrderEvent>builder()
 </details>
 
 <details className="overview-section">
-<summary>5. Native Collection & JDK Serialization</summary>
+<summary>5. Native collection & JDK serialization</summary>
 <div className="overview-body">
 
 In vanilla Flink, collections like `List<String>` inside a POJO silently fall back to Kryo serialization because Flink's type extractor cannot resolve generic parameters. Flinkboot provides turnkey `TypeInfoFactory` classes to guarantee high-throughput, native Flink serializers.
@@ -266,7 +266,7 @@ public class OrderEvent {
 </details>
 
 <details className="overview-section">
-<summary>6. Build-Time POJO Compliance Auditing</summary>
+<summary>6. Build-time POJO compliance auditing</summary>
 <div className="overview-body">
 
 Apache Flink relies on its high-performance `PojoSerializer` to achieve maximum streaming throughput. If an event class lacks a default constructor, contains an unmapped collection, or misses getters/setters, Flink silently falls back to slow Kryo serialization without failing. Flinkboot provides build-time assertions to guarantee POJO compliance in your unit tests.
@@ -304,7 +304,48 @@ TypeInformation<OrderEvent> ti = TypeInformation.of(OrderEvent.class);
 </details>
 
 <details className="overview-section">
-<summary>7. Deterministic Stream Integration Testing</summary>
+<summary>7. Java serialization compliance assertion</summary>
+<div className="overview-body">
+
+Flink operators and user-defined functions (`ProcessFunction`, `MapFunction`, `KeySelector`) are serialized via standard Java serialization and shipped over the network to remote TaskManagers. An unintentionally captured non-serializable field (logger, open connection, outer class reference) crashes your job at submission. Flinkboot lets you verify full serialization round-trips in unit tests.
+
+<Tabs>
+  <TabItem value="flinkboot" label="With Flinkboot" default>
+
+```java
+@Test
+void verifyFunctionIsSerializable() {
+    var fraudEvaluator = new OrderFraudEvaluator(config.alerting());
+
+    // Performs an in-memory serialization round-trip:
+    // Fails immediately if any captured field or closure is not serializable
+    FlinkbootAssertions.assertThat(fraudEvaluator)
+        .isSerializable();
+}
+```
+
+  </TabItem>
+  <TabItem value="standard" label="Standard Flink">
+
+```java
+// In standard Flink, non-serializable fields are only caught at runtime
+// when submitting the job graph to the cluster:
+// java.io.NotSerializableException: org.slf4j.Logger
+// or developers write custom ByteArrayOutputStream round-trip boilerplate:
+try (var baos = new ByteArrayOutputStream();
+     var oos = new ObjectOutputStream(baos)) {
+    oos.writeObject(fraudEvaluator);
+} // Cumbersome and rarely written for every pipeline operator
+```
+
+  </TabItem>
+</Tabs>
+
+</div>
+</details>
+
+<details className="overview-section">
+<summary>8. Deterministic in-memory stream testing</summary>
 <div className="overview-body">
 
 Testing Apache Flink streaming pipelines in JUnit 5 typically requires writing custom test sink functions with thread-synchronized static lists, creating flaky tests and state pollution. Flinkboot provides `CollectingSink`, an auto-closeable in-memory sink that safely collects records across parallel subtasks using Java's `try-with-resources`.
@@ -323,10 +364,11 @@ void shouldProcessOrdersEndToEnd() throws Exception {
         env.execute();
 
         var elements = sink.elements();
-        assertThat(elements)
-            .hasSize(2)
-            .extracting(OrderEvent::id)
-            .containsExactlyInAnyOrder("order-1", "order-2");
+        assertAll(
+            () -> assertEquals(2, elements.size()),
+            () -> assertEquals("order-1", elements.get(0).id),
+            () -> assertEquals("order-2", elements.get(1).id)
+        );
     }
 }
 ```

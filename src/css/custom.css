@@ -104,47 +104,74 @@
   margin-left: 1.25rem;
 }
 
-/* Clean, understated accordion styles for Overview sections */
+/* Modern accordion card styles for Overview sections with green accents */
 details.overview-section {
-  --docusaurus-details-decoration-color: currentColor;
-  background-color: transparent;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 6px;
-  padding: 0.9rem 1.15rem;
-  margin-bottom: 1rem;
+  --docusaurus-details-decoration-color: var(--ifm-color-primary-lighter);
+  background-color: var(--ifm-card-background-color);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 details.overview-section[open] {
-  border-color: var(--ifm-color-emphasis-500);
+  border-color: var(--ifm-color-primary-lighter);
+  box-shadow: 0 4px 16px rgba(37, 194, 160, 0.08);
 }
 
 details.overview-section > summary {
-  font-size: 1.2rem;
-  font-weight: 650;
+  position: relative;
+  font-size: 1.22rem;
+  line-height: 1.4;
+  font-weight: 700;
   cursor: pointer;
   user-select: none;
   outline: none;
   color: var(--ifm-heading-color);
+  padding-left: 1.25rem;
+  transition: color 0.15s ease;
+}
+
+/* Perfect vertical centering for the triangle arrow */
+details.overview-section > summary::before {
+  top: 50% !important;
+  transform: translateY(-50%) rotate(0deg);
+  transform-origin: calc(var(--docusaurus-details-summary-arrow-size) / 2) 50%;
+}
+
+details.overview-section[open] > summary::before,
+details.overview-section[data-collapsed='false'] > summary::before {
+  transform: translateY(-50%) rotate(90deg) !important;
+}
+
+details.overview-section > summary:hover {
+  color: var(--ifm-color-primary-light);
 }
 
 details.overview-section .overview-body {
-  margin-top: 1rem;
-  padding-top: 0.25rem;
+  margin-top: 1.25rem;
+  padding-top: 0.5rem;
 }
 
-/* Tabs styling - neutral, simple underlines, no color glow */
+/* Tabs styling with green active accent */
 .tabs {
-  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
 }
 
 .tabs__item {
   font-weight: 500;
   border-bottom-width: 2px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tabs__item:hover {
+  color: var(--ifm-color-primary-light);
 }
 
 .tabs__item--active {
-  border-bottom-color: var(--ifm-heading-color);
-  color: var(--ifm-heading-color);
+  border-bottom-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
   font-weight: 600;
 }
 
