@@ -13,8 +13,7 @@ const sidebars: SidebarsConfig = {
       collapsed: true,
       items: [
         {type: 'doc', id: 'setup/compatibility', label: 'Compatibility'},
-        {type: 'doc', id: 'setup/bom-managed-dependencies', label: 'BOM & Dependencies'},
-        {type: 'doc', id: 'setup/avoid-dependency-conflicts', label: 'Classpath Conflicts'},
+        {type: 'doc', id: 'setup/setup-a-project', label: 'Setup a Project'},
       ],
     },
     {
