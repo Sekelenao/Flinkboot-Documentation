@@ -1,0 +1,77 @@
+.container {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--ifm-toc-border-color);
+  background-color: var(--ifm-background-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  user-select: none;
+}
+
+.labelWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.badgeStable {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background-color: rgba(46, 133, 85, 0.15);
+  color: var(--ifm-color-primary);
+  border: 1px solid var(--ifm-color-primary);
+}
+
+.badgeDev {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background-color: rgba(220, 100, 50, 0.15);
+  color: #e67e22;
+  border: 1px solid #e67e22;
+}
+
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select {
+  width: 100%;
+  appearance: none;
+  background-color: var(--ifm-navbar-background-color);
+  color: var(--ifm-font-color-base);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  padding: 0.4rem 1.8rem 0.4rem 0.65rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--ifm-transition-fast) ease;
+}
+
+.select:hover,
+.select:focus {
+  border-color: var(--ifm-color-primary);
+}
+
+.arrow {
+  position: absolute;
+  right: 0.65rem;
+  pointer-events: none;
+  font-size: 0.55rem;
+  color: var(--ifm-color-emphasis-500);
+}

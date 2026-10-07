@@ -1,0 +1,39 @@
+.docItemContainer header + *,
+.docItemContainer article > *:first-child {
+  margin-top: 0;
+}
+
+@media (min-width: 997px) {
+  .docItemCol {
+    max-width: 100% !important;
+  }
+}
+
+.docItemContainer {
+  width: 100%;
+  max-width: 75rem; /* ~1200px : large, aéré et moderne */
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+
+
+
+
+
+
+.docHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 996px) {
+  .docHeaderRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

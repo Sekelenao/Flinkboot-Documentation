@@ -1,0 +1,35 @@
+# Flinkboot Documentation (Active Version: 0.5.0)
+
+> Bootstrapping & Reliability Framework for Apache Flink.
+> Fail fast on configuration, serialize natively without Kryo, and bootstrap Apache Flink pipelines with zero boilerplate.
+
+- Website: https://flinkboot.com
+- GitHub: https://github.com/Sekelenao/Flinkboot
+- Maven Central: https://central.sonatype.com/artifact/io.github.sekelenao/flinkboot-core
+- Complete Documentation (Latest) in one file: https://flinkboot.com/llms-full.txt
+
+## Available Versions
+- Version 0.5.0 (Latest): Summary https://flinkboot.com/llms-0.5.0.txt | Full context: https://flinkboot.com/llms-0.5.0-full.txt
+
+## Guides & Documentation (Latest Version: 0.5.0)
+
+- [Overview](https://flinkboot.com/docs/) (Raw: https://flinkboot.com/raw/0.5.0/intro.md)
+- [Compatibility Matrix](https://flinkboot.com/docs/compatibility) (Raw: https://flinkboot.com/raw/0.5.0/compatibility.md)
+- [How to Configure the Execution Environment](https://flinkboot.com/docs/configuration/configure-execution-environment) (Raw: https://flinkboot.com/raw/0.5.0/configuration/configure-execution-environment.md)
+- [How to Load a Flag with Flinkboot](https://flinkboot.com/docs/configuration/load-a-flag) (Raw: https://flinkboot.com/raw/0.5.0/configuration/load-a-flag.md)
+- [How to Load a Parameter with Flinkboot](https://flinkboot.com/docs/configuration/load-a-parameter) (Raw: https://flinkboot.com/raw/0.5.0/configuration/load-a-parameter.md)
+- [How to Load & Merge Configurations](https://flinkboot.com/docs/configuration/load-configurations) (Raw: https://flinkboot.com/raw/0.5.0/configuration/load-configurations.md)
+- [How to Load Resources (`Resource`)](https://flinkboot.com/docs/configuration/load-resources) (Raw: https://flinkboot.com/raw/0.5.0/configuration/load-resources.md)
+- [Reserved Keys and Configuration Properties](https://flinkboot.com/docs/configuration/reserved-keys) (Raw: https://flinkboot.com/raw/0.5.0/configuration/reserved-keys.md)
+- [How to Validate Custom Cross-Field Configurations](https://flinkboot.com/docs/configuration/validate-custom-configurations) (Raw: https://flinkboot.com/raw/0.5.0/configuration/validate-custom-configurations.md)
+- [How to Configure a Fluss Sink](https://flinkboot.com/docs/fluss/configure-fluss-sink) (Raw: https://flinkboot.com/raw/0.5.0/fluss/configure-fluss-sink.md)
+- [How to Configure a Fluss Source](https://flinkboot.com/docs/fluss/configure-fluss-source) (Raw: https://flinkboot.com/raw/0.5.0/fluss/configure-fluss-source.md)
+- [How to Configure a Kafka Sink](https://flinkboot.com/docs/kafka/configure-kafka-sink) (Raw: https://flinkboot.com/raw/0.5.0/kafka/configure-kafka-sink.md)
+- [How to Configure a Kafka Source](https://flinkboot.com/docs/kafka/configure-kafka-source) (Raw: https://flinkboot.com/raw/0.5.0/kafka/configure-kafka-source.md)
+- [How to Serialize JDK Types (Time, Duration, Collections)](https://flinkboot.com/docs/serialization/serialize-jdk-types) (Raw: https://flinkboot.com/raw/0.5.0/serialization/serialize-jdk-types.md)
+- [How to Avoid Classpath and Dependency Conflicts in Production](https://flinkboot.com/docs/setup/avoid-dependency-conflicts) (Raw: https://flinkboot.com/raw/0.5.0/setup/avoid-dependency-conflicts.md)
+- [Understanding the Flinkboot Bill of Materials (BOM)](https://flinkboot.com/docs/setup/bom-managed-dependencies) (Raw: https://flinkboot.com/raw/0.5.0/setup/bom-managed-dependencies.md)
+- [How to Assert Flink POJO Compliance](https://flinkboot.com/docs/testing/assert-pojo-compliance) (Raw: https://flinkboot.com/raw/0.5.0/testing/assert-pojo-compliance.md)
+- [How to Assert Java Serialization Compliance](https://flinkboot.com/docs/testing/assert-serialization-compliance) (Raw: https://flinkboot.com/raw/0.5.0/testing/assert-serialization-compliance.md)
+- [How to Collect Stream Elements in Tests](https://flinkboot.com/docs/testing/collect-stream-elements-in-tests) (Raw: https://flinkboot.com/raw/0.5.0/testing/collect-stream-elements-in-tests.md)
+- [How to Load Configurations in Tests](https://flinkboot.com/docs/testing/load-configurations-in-tests) (Raw: https://flinkboot.com/raw/0.5.0/testing/load-configurations-in-tests.md)
