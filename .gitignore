@@ -22,3 +22,7 @@ yarn-error.log*
 # IDEs
 .idea/
 .vscode/
+
+# Generated LLM and raw markdown artifacts (built dynamically)
+/static/raw/
+/static/llms*.txt
