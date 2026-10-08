@@ -32,10 +32,8 @@ const sidebars: SidebarsConfig = {
       label: 'Connectors',
       collapsed: true,
       items: [
-        {type: 'doc', id: 'kafka/configure-kafka-source', label: 'Kafka Source'},
-        {type: 'doc', id: 'kafka/configure-kafka-sink', label: 'Kafka Sink'},
-        {type: 'doc', id: 'fluss/configure-fluss-source', label: 'Fluss Source'},
-        {type: 'doc', id: 'fluss/configure-fluss-sink', label: 'Fluss Sink'},
+        {type: 'doc', id: 'connectors/kafka', label: 'Apache Kafka'},
+        {type: 'doc', id: 'connectors/fluss', label: 'Apache Fluss'},
       ],
     },
     {
