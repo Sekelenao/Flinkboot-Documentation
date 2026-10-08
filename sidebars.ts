@@ -57,6 +57,14 @@ const sidebars: SidebarsConfig = {
         {type: 'doc', id: 'testing/load-configurations-in-tests', label: 'Test Configurations'},
       ],
     },
+    {
+      type: 'category',
+      label: 'Utilities',
+      collapsed: true,
+      items: [
+        {type: 'doc', id: 'utilities/loading-resources', label: 'Loading resources'},
+      ],
+    },
   ],
 };
 

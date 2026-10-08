@@ -17,7 +17,7 @@ StreamExecutionEnvironment env = boot.executionEnvironment(config.job());
 
 ---
 
-## 1. How Auto-Configuration Works
+## 1. How bootstrapping works
 
 When you invoke `boot.executionEnvironment(JobProperties properties)`, Flinkboot applies the following lifecycle under the hood:
 
@@ -29,7 +29,7 @@ When you invoke `boot.executionEnvironment(JobProperties properties)`, Flinkboot
 
 ---
 
-## 2. Complete Production YAML Example
+## 2. Complete production YAML example
 
 Here is a complete YAML reference demonstrating all supported execution environment features:
 
@@ -91,11 +91,11 @@ environment:
 
 ---
 
-## 3. Configuration Reference Specification
+## 3. Configuration reference specification
 
 Below is the complete specification of all properties supported by `JobProperties`.
 
-### A. Job Metadata
+### A. Job metadata
 
 | Property Key  | Type   | Required | Description |
 |:--------------|:-------|:---------|:------------|
@@ -104,7 +104,7 @@ Below is the complete specification of all properties supported by `JobPropertie
 
 ---
 
-### B. Execution Options (`environment.execution:`)
+### B. Execution options (`environment.execution:`)
 
 | Property Key              | Type       | Required | Validation                  | Description |
 |:--------------------------|:-----------|:---------|:----------------------------|:------------|
@@ -117,7 +117,7 @@ Below is the complete specification of all properties supported by `JobPropertie
 
 ---
 
-### C. Fault Tolerance & Checkpointing (`environment.checkpointing:`)
+### C. Fault tolerance & checkpointing (`environment.checkpointing:`)
 
 | Property Key                      | Type       | Required | Validation                  | Description |
 |:----------------------------------|:-----------|:---------|:----------------------------|:------------|
@@ -134,7 +134,7 @@ Below is the complete specification of all properties supported by `JobPropertie
 
 ---
 
-### D. State Backend & RocksDB (`environment.state-backend:`)
+### D. State backend & RocksDB (`environment.state-backend:`)
 
 | Property Key         | Type    | Required                      | Validation | Description |
 |:---------------------|:--------|:------------------------------|:-----------|:------------|
@@ -146,11 +146,19 @@ Below is the complete specification of all properties supported by `JobPropertie
 
 ---
 
-### E. Restart Strategies (`environment.restart-strategy:`)
+### E. Restart strategies (`environment.restart-strategy:`)
 
 The `restart-strategy` block accepts a `type` (`NO_RESTART`, `FIXED_DELAY`, `FAILURE_RATE`, `EXPONENTIAL_DELAY`, `FALLBACK`) and at most **one** matching sub-block.
 
-#### 1. Fixed Delay (`type: FIXED_DELAY`)
+| Property Key | Type | Required | Validation | Description |
+|:---|:---|:---|:---|:---|
+| `type` | Enum | No | Enum | Strategy type: `NO_RESTART`, `FIXED_DELAY`, `FAILURE_RATE`, `EXPONENTIAL_DELAY`, or `FALLBACK`. |
+| `fixed-delay` | Object | No | `@Valid` | Parameters for `FIXED_DELAY` strategy. |
+| `failure-rate` | Object | No | `@Valid` | Parameters for `FAILURE_RATE` strategy. |
+| `exponential-delay` | Object | No | `@Valid` | Parameters for `EXPONENTIAL_DELAY` strategy. |
+
+#### 1. Fixed delay (`type: FIXED_DELAY`)
+
 ```yaml
 restart-strategy:
   type: "FIXED_DELAY"
@@ -158,10 +166,14 @@ restart-strategy:
     attempts: 3
     delay: "PT10S"
 ```
-* `attempts` (`Integer`): Number of restart attempts (`@PositiveOrZero`).
-* `delay` (`Duration`): Delay between attempts (`@DurationMin(millis = 0)`).
 
-#### 2. Failure Rate (`type: FAILURE_RATE`)
+| Property Key | Type | Required | Validation | Description |
+|:---|:---|:---|:---|:---|
+| `attempts` | Integer | **Yes** | `@PositiveOrZero` | Number of restart attempts before job failure. |
+| `delay` | `Duration` | No | `@DurationMin(millis = 0)` | Delay between restart attempts. Defaults to `0s`. |
+
+#### 2. Failure rate (`type: FAILURE_RATE`)
+
 ```yaml
 restart-strategy:
   type: "FAILURE_RATE"
@@ -170,11 +182,15 @@ restart-strategy:
     failure-interval: "PT5M"
     delay: "PT10S"
 ```
-* `max-failures-per-interval` (`Integer`): Maximum failures within interval (`@Positive`).
-* `failure-interval` (`Duration`): Evaluation window (`@DurationMin(millis = 1)`).
-* `delay` (`Duration`): Delay between attempts (`@DurationMin(millis = 0)`).
 
-#### 3. Exponential Delay (`type: EXPONENTIAL_DELAY`)
+| Property Key | Type | Required | Validation | Description |
+|:---|:---|:---|:---|:---|
+| `max-failures-per-interval` | Integer | **Yes** | `@Positive` | Maximum failures permitted within the time window. |
+| `failure-interval` | `Duration` | **Yes** | `@DurationMin(millis = 1)` | Measurement window interval. |
+| `delay` | `Duration` | No | `@DurationMin(millis = 0)` | Delay between restart attempts. Defaults to `0s`. |
+
+#### 3. Exponential delay (`type: EXPONENTIAL_DELAY`)
+
 ```yaml
 restart-strategy:
   type: "EXPONENTIAL_DELAY"
@@ -185,15 +201,18 @@ restart-strategy:
     reset-backoff-threshold: "PT1H"
     jitter-factor: 0.1
 ```
-* `initial-backoff` (`Duration`): Initial backoff delay (`@DurationMin(millis = 1)`).
-* `max-backoff` (`Duration`): Maximum backoff cap (greater than or equal to `initial-backoff`).
-* `backoff-multiplier` (`Double`): Multiplier strictly greater than 1.0.
-* `reset-backoff-threshold` (`Duration`): Time required without failures to reset backoff.
-* `jitter-factor` (`Double`): Jitter randomization factor between `0.0` and `1.0`.
+
+| Property Key | Type | Required | Validation | Description |
+|:---|:---|:---|:---|:---|
+| `initial-backoff` | `Duration` | **Yes** | `@DurationMin(millis = 1)` | Initial backoff duration. |
+| `max-backoff` | `Duration` | **Yes** | Greater than or equal to `initial-backoff` | Maximum cap for backoff duration. |
+| `backoff-multiplier` | Double | No | Strictly `> 1.0` | Exponential multiplier for consecutive failures. Defaults to `2.0`. |
+| `reset-backoff-threshold` | `Duration` | No | `@DurationMin(millis = 1)` | Failure-free uptime required to reset backoff. Defaults to `PT1H`. |
+| `jitter-factor` | Double | No | `0.0 <= x <= 1.0` | Random jitter ratio added to backoff. Defaults to `0.1`. |
 
 ---
 
-### F. Savepoint Recovery (`environment.savepoint-restore:`)
+### F. Savepoint recovery (`environment.savepoint-restore:`)
 
 ```yaml
 savepoint-restore:
@@ -202,15 +221,15 @@ savepoint-restore:
   restore-mode: "CLAIM"
 ```
 
-| Property Key               | Type    | Required | Validation  | Description |
-|:---------------------------|:--------|:---------|:------------|:------------|
-| `savepoint-path`           | String  | **Yes**  | `@NotBlank` | Path to savepoint or initial checkpoint directory. |
-| `allow-non-restored-state` | Boolean | No       | Boolean     | Start even if savepoint contains unmapped subtask state. |
-| `restore-mode`             | Enum    | No       | Enum        | Restore mode: `CLAIM`, `NO_CLAIM`, or `LEGACY`. |
+| Property Key | Type | Required | Validation | Description |
+|:---|:---|:---|:---|:---|
+| `savepoint-path` | String | **Yes** | `@NotBlank` | Path to savepoint or initial checkpoint directory. |
+| `allow-non-restored-state` | Boolean | No | Boolean | Start even if savepoint contains unmapped subtask state. |
+| `restore-mode` | Enum | No | Enum | Restore mode: `CLAIM`, `NO_CLAIM`, or `LEGACY`. |
 
 ---
 
-### G. Local Dev WebUI (`environment.local-web-ui:`)
+### G. Local dev WebUI (`environment.local-web-ui:`)
 
 ```yaml
 local-web-ui:
@@ -219,17 +238,19 @@ local-web-ui:
   bind-address: "localhost"
 ```
 
-* `enabled` (`Boolean`): Starts a local Flink MiniCluster with the WebUI dashboard active during IDE testing.
-* `port` (`Integer`): WebUI REST port (defaults to `8081`).
-* `bind-address` (`String`): WebUI host bind address (defaults to `localhost`).
+| Property Key | Type | Required | Validation | Description |
+|:---|:---|:---|:---|:---|
+| `enabled` | Boolean | No | Boolean | Starts a local Flink MiniCluster with the WebUI dashboard active during IDE testing. |
+| `port` | Integer | No | `@Positive` | WebUI REST port. Defaults to `8081`. |
+| `bind-address` | String | No | `@NotBlank` | WebUI host bind address. Defaults to `localhost`. |
 
 Enabling `local-web-ui.enabled: true` requires `org.apache.flink:flink-runtime-web` on the classpath. If set to `true` inside a remote Flink cluster, Flinkboot fails fast with an `UnsupportedExecutionEnvironmentException`.
 
 ---
 
-### H. Universal Escape Hatch (`environment.properties:`)
+### H. Universal escape hatch (`environment.properties:`)
 
-Arbitrary Flink configuration key-value pairs (`Map<String, String>`) applied directly onto Flink's native `Configuration` object:
+Arbitrary Flink configuration key-value pairs applied directly onto Flink's native `Configuration` object:
 
 ```yaml
 environment:
@@ -238,4 +259,7 @@ environment:
     pipeline.operator-chaining.enabled: "true"
 ```
 
-Properties specified in `properties` take direct precedence over typed YAML properties in case of conflict.
+| Property Key | Type | Required | Description |
+|:---|:---|:---|:---|
+| `properties` | `Map<String, String>` | No | Free-form key-value map mapped directly to Flink's native `Configuration`. Properties defined here take direct precedence over typed YAML properties in case of conflict. |
+

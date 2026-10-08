@@ -24,7 +24,7 @@ Add the Flinkboot Bill of Materials (BOM) to your project's `<dependencyManageme
 
 ---
 
-## 2. Declare Dependencies
+## 2. Declare dependencies
 
 Add the Flinkboot modules you need to your `<dependencies>` section without specifying `<version>`:
 
@@ -68,7 +68,7 @@ Add the Flinkboot modules you need to your `<dependencies>` section without spec
 
 ---
 
-## 3. Package the Fat JAR
+## 3. Package the fat JAR
 
 When deploying to an Apache Flink cluster, package your application with `maven-shade-plugin`. 
 

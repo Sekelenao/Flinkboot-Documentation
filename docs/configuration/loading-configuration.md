@@ -14,7 +14,7 @@ YAML keys map to Java fields using Jackson's `@JsonProperty("key-name")` annotat
 
 ---
 
-## 1. Defining Configuration Models
+## 1. Defining configuration models
 
 ### Mandatory fields with Java Records (Java 17+)
 
@@ -93,7 +93,7 @@ server:
 
 ---
 
-## 2. Customizing Jackson YAML Deserialization
+## 2. Customizing Jackson YAML deserialization
 
 If your domain models require custom Jackson configuration or third-party modules, supply a builder customizer lambda when loading the configuration:
 
@@ -117,7 +117,7 @@ For more options, refer to the official [Jackson documentation](https://github.c
 
 ---
 
-## 3. Loading Configuration
+## 3. Loading configuration
 
 To bind your YAML files to your domain model, call `boot.configuration(Class<T>)`:
 
@@ -135,7 +135,7 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-### Default Configuration Location
+### Default configuration location
 
 By default, Flinkboot looks for a file named `job-configuration.yaml` in your application classpath:
 
@@ -145,7 +145,7 @@ classpath:job-configuration.yaml
 
 If this file is missing and no other location is specified, initialization fails fast.
 
-### Overriding Configuration Paths
+### Overriding configuration paths
 
 You can override the default location at runtime or supply multiple configuration files to merge:
 
@@ -166,7 +166,7 @@ You can override the default location at runtime or supply multiple configuratio
 
 Supported URI schemes include `classpath:<path>`, `resource:<path>`, and `file:<path>`.
 
-### Merging Multiple Configuration Files
+### Merging multiple configuration files
 
 When loading multiple files sequentially, Flinkboot enforces strict collision rules by default to prevent accidental configuration overwrites:
 
@@ -190,7 +190,7 @@ When loading multiple files sequentially, Flinkboot enforces strict collision ru
 
 ---
 
-## 4. Environment Variable Templating
+## 4. Environment variable templating
 
 Configuration files support dynamic variable interpolation using the `${VAR_NAME}` syntax. Values are resolved from host environment variables before Jackson binds your configuration models:
 
@@ -200,13 +200,13 @@ server:
   port: ${DATABASE_PORT}
 ```
 
-### Fail-Fast Invariant
+### Fail-fast invariant
 
 Flinkboot validates all placeholders strictly at startup:
 - If a referenced variable is missing from the host environment, initialization fails fast with an `UnresolvedPropertyPlaceholderException`.
 - This ensures your streaming job never starts with partially resolved or missing credentials.
 
-### Escaping Literal Placeholders
+### Escaping literal placeholders
 
 If your configuration contains literal `${...}` strings that should not be evaluated as environment variables (for example, partitioned file patterns or regex templates), escape the prefix with a backslash:
 

@@ -46,7 +46,7 @@ Refer to the official [Jakarta Bean Validation documentation](https://jakarta.ee
 
 ---
 
-## 2. Validation Error Reporting
+## 2. Validation error reporting
 
 When a constraint is violated, Flinkboot halts application startup with a `ConfigurationValidationException`. The violation path is mapped to kebab-case YAML property names so the developer can immediately locate the offending configuration key.
 
@@ -67,7 +67,7 @@ By default, Flinkboot prints up to 10 validation violations before summarizing a
 
 ---
 
-## 3. Disabling Validation
+## 3. Disabling validation
 
 Bean validation can be disabled using the CLI flag `--flinkboot-configuration-disable-validation`.
 
@@ -75,7 +75,7 @@ However, disabling validation means no constraints are verified at startup. No a
 
 ---
 
-## 4. Cross-Field Validation with `ValidatableProperties`
+## 4. Cross-field validation with `ValidatableProperties`
 
 Field-level annotations cannot validate invariants that span multiple fields, such as ensuring a sliding window slide interval is strictly shorter than its window length.
 
