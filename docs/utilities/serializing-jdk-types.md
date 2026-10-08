@@ -6,7 +6,7 @@ description: Native Flink serialization for LocalDateTime, LocalDate, Duration, 
 
 # Serializing JDK types
 
-In Apache Flink, POJO fields using `LocalDateTime`, `LocalDate`, `LocalTime`, `Duration`, `List`, or `Map` default to Kryo serialization, which is slower, less space-efficient, and risky for state schema evolution.
+In Apache Flink, standard JDK date-time types and collections default to Kryo serialization, which is slower, less space-efficient, and risky for state schema evolution.
 
 Flinkboot provides built-in, optimized `TypeInfoFactory` classes to enable native Flink serialization for these types.
 
@@ -45,9 +45,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
-public class UserEvent {
-
-    public String userId;
+public class Example {
 
     @TypeInfo(LocalDateTimeTypeInfoFactory.class)
     public LocalDateTime eventTime;
@@ -66,8 +64,6 @@ public class UserEvent {
 
     @TypeInfo(MapTypeInfoFactory.class)
     public Map<String, Integer> metrics;
-
-    public UserEvent() {}
 }
 ```
 
@@ -112,23 +108,5 @@ Flink's native serializers for collections and time types properly support `null
 * **Bounded Class Generics (`Container<T extends ParentDto>`)**: When a concrete class argument is provided (e.g. `Container<ChildDto>`), Flink's `TypeExtractor` resolves `ChildDto` natively as a POJO.
 * **Wildcards in Collections (`List<? extends ParentDto>`)**: Wildcard type arguments cannot be resolved into concrete type parameters by Flink's `TypeInfoFactory` and therefore fall back to Kryo serialization (`GenericTypeInfo`). Always declare collections with concrete type arguments (e.g. `List<ParentDto>` instead of `List<? extends ParentDto>`).
 
----
 
-## 4. POJO compliance validation
-
-To verify that your POJOs are properly configured and do not fall back to Kryo serialization, validate them in your tests using `FlinkbootAssertions.assertThat(...).isPojo()` from `flinkboot-test`:
-
-```java
-import org.junit.jupiter.api.Test;
-
-import static io.github.sekelenao.flinkboot.test.api.assertion.FlinkbootAssertions.assertThat;
-
-class UserEventTest {
-
-    @Test
-    void testPojoCompliance() {
-        assertThat(UserEvent.class).isPojo();
-    }
-}
-```
 
