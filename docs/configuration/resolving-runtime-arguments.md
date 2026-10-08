@@ -1,10 +1,10 @@
 ---
-title: CLI Options, Parameters & Built-in Checks
-sidebar_label: CLI & Built-in Checks
-description: How Flinkboot parses and validates CLI parameters, boolean flags, unified resources, and reserved framework settings.
+title: Resolving runtime arguments
+sidebar_label: Resolving runtime arguments
+description: How Flinkboot parses, resolves, and validates runtime CLI arguments, boolean flags, unified resources, and reserved framework settings.
 ---
 
-# CLI Options, Parameters & Built-in Checks
+# Resolving runtime arguments
 
 In addition to static YAML files, streaming applications frequently need to inspect runtime command-line arguments, toggle operational flags, read external resources, and leverage framework-level flags.
 

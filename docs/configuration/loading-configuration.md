@@ -188,4 +188,33 @@ When loading multiple files sequentially, Flinkboot enforces strict collision ru
   ```
   *(Or set environment variable `FLINKBOOT_CONFIGURATION_LIST_MERGING=true`)*.
 
+---
+
+## 4. Environment Variable Templating
+
+Configuration files support dynamic variable interpolation using the `${VAR_NAME}` syntax. Values are resolved from host environment variables before Jackson binds your configuration models:
+
+```yaml
+server:
+  host: "${DATABASE_HOST}"
+  port: ${DATABASE_PORT}
+```
+
+### Fail-Fast Invariant
+
+Flinkboot validates all placeholders strictly at startup:
+- If a referenced variable is missing from the host environment, initialization fails fast with an `UnresolvedPropertyPlaceholderException`.
+- This ensures your streaming job never starts with partially resolved or missing credentials.
+
+### Escaping Literal Placeholders
+
+If your configuration contains literal `${...}` strings that should not be evaluated as environment variables (for example, partitioned file patterns or regex templates), escape the prefix with a backslash:
+
+```yaml
+sink:
+  path-template: "\${year}/\${month}/\${day}"
+```
+
+Flinkboot preserves the literal pattern `${year}/${month}/${day}` without attempting resolution.
+
 

@@ -24,7 +24,7 @@ const sidebars: SidebarsConfig = {
         {type: 'doc', id: 'configuration/loading-configuration', label: 'Loading configuration'},
         {type: 'doc', id: 'configuration/validating-configuration', label: 'Validating configuration'},
         {type: 'doc', id: 'configuration/auto-configure-execution-environment', label: 'Bootstrapping execution environment'},
-        {type: 'doc', id: 'configuration/cli-parameters-and-reserved-keys', label: 'CLI & Built-in Checks'},
+        {type: 'doc', id: 'configuration/resolving-runtime-arguments', label: 'Resolving runtime arguments'},
       ],
     },
     {
