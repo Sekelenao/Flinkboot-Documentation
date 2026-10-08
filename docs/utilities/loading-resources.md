@@ -42,39 +42,9 @@ Prefix matching is case-insensitive (`file:`, `FILE:`, `classpath:`).
 
 ---
 
-## 3. Streaming operator lifecycle
+## 3. Distributed streaming lifecycle
 
 `Resource` instances are **not `Serializable`**. 
 
-When using a resource inside a distributed Flink function (such as a `RichMapFunction` or `ProcessFunction`), declare the field as `transient` and load it inside the `open` lifecycle method:
+When accessing resources inside distributed Flink streaming operators (such as a `RichMapFunction` or `ProcessFunction`), do not serialize the `Resource` instance across TaskManagers. Instead, pass the path string to the operator constructor, declare the resource or resulting state as `transient`, and read the input stream inside the operator's `open(OpenContext)` lifecycle method.
 
-```java
-import io.github.sekelenao.flinkboot.core.api.resource.Resource;
-import org.apache.flink.api.common.functions.OpenContext;
-import org.apache.flink.api.common.functions.RichMapFunction;
-import java.io.InputStream;
-
-public class RuleEvaluator extends RichMapFunction<Transaction, Alert> {
-
-    private final String resourcePath;
-    private transient Resource rulesResource;
-
-    public RuleEvaluator(String resourcePath) {
-        this.resourcePath = resourcePath;
-    }
-
-    @Override
-    public void open(OpenContext context) {
-        // Loaded locally on the TaskManager during operator initialization
-        this.rulesResource = Resource.of(resourcePath);
-    }
-
-    @Override
-    public Alert map(Transaction transaction) throws Exception {
-        try (InputStream in = rulesResource.inputStream()) {
-            // Evaluate rules against stream transaction...
-        }
-        return null;
-    }
-}
-```
