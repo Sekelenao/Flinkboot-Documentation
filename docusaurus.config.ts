@@ -138,11 +138,10 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           routeBasePath: 'docs',
           editUrl: 'https://github.com/Sekelenao/Flinkboot-Documentation/tree/main/',
-          lastVersion: 'current',
-          includeCurrentVersion: true,
-          onlyIncludeVersions: ['current'],
+          lastVersion: '0.5.0',
+          includeCurrentVersion: false,
           versions: {
-            current: {
+            '0.5.0': {
               label: '0.5.0-1.20',
               path: '',
               banner: 'none',

@@ -1,109 +1,61 @@
-# How to Load Configurations in Tests
+---
+title: Loading configuration in tests
+sidebar_label: Loading configuration in tests
+description: Load, merge, and validate YAML configurations directly in JUnit 5 tests using Flinkboot.initialize.
+---
 
-Flinkboot allows you to easily load, merge, and validate YAML configurations directly within your JUnit 5 tests using `Flinkboot.initialize(...)`.
+# Loading configuration in tests
+
+Flinkboot allows you to load, merge, and validate YAML configurations directly within your JUnit 5 tests using `Flinkboot.initialize(...)`.
 
 ---
 
 ## 1. Overview
 
-When writing unit or integration tests for your Flink applications, you often need to load and validate your application configuration objects (DTOs) without starting a full command-line application.
-
-Using `Flinkboot.initialize(...)` directly in tests provides:
-* **Production Parity**: Tests execute through the exact same startup and parsing engine used in production.
-* **Varargs Simplicity**: Call `Flinkboot.initialize()` with zero arguments for default classpath configuration, or pass command-line options inline.
-* **Full Option Support**: Test custom flags (`--dry-run`), CLI parameters (`-threshold 100`), or Flinkboot runtime options (`--flinkboot-configuration-disable-validation`) alongside your configuration files.
-* **Explicit Scheme Prefixes**: Unified support for `classpath:`, `resource:`, and `file:` schemes via Flinkboot's `Resource` API.
+When writing unit or integration tests for your Flink applications, you often need to load and validate your application configuration objects (DTOs) without starting a full command-line application:
+* **Production parity**: Tests execute through the exact same parsing and validation engine used in production.
+* **Varargs simplicity**: Call `Flinkboot.initialize()` with zero arguments for default classpath configuration, or pass command-line options inline.
+* **Full option support**: Test custom flags (`--dry-run`), CLI parameters (`-threshold 100`), or Flinkboot runtime options alongside your configuration files.
+* **Explicit scheme prefixes**: Unified support for `classpath:`, `resource:`, and `file:` schemes via Flinkboot's `Resource` API.
 
 ---
 
-## 2. Maven Dependencies
+## 2. Usage examples
 
-Import the Flinkboot BOM in your `<dependencyManagement>` and add `flinkboot-core` in your `pom.xml`:
+### Loading default classpath configuration
 
-```xml
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>io.github.sekelenao</groupId>
-            <artifactId>flinkboot</artifactId>
-            <version>${flinkboot.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
-
-<dependencies>
-    <!-- Flinkboot Core -->
-    <dependency>
-        <groupId>io.github.sekelenao</groupId>
-        <artifactId>flinkboot-core</artifactId>
-    </dependency>
-
-    <!-- JUnit 5 -->
-    <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <scope>test</scope>
-    </dependency>
-</dependencies>
-```
-
----
-
-## 3. Usage Examples
-
-### Loading a Single Classpath Configuration
-
-Place your test YAML configuration in `src/test/resources/job-test.yaml`:
-
-```yaml
-job:
-  name: "unit-test-job"
-  environment:
-    execution:
-      parallelism: 2
-```
-
-In your JUnit 5 test class:
+Calling `Flinkboot.initialize()` without arguments automatically loads `src/test/resources/job-configuration.yaml`:
 
 ```java
 import io.github.sekelenao.flinkboot.core.api.Flinkboot;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationConfigTest {
 
     @Test
-    @DisplayName("Should load application configuration from classpath YAML")
-    void testLoadConfiguration() throws Exception {
-        MyApplicationConfig config = Flinkboot.initialize(
-            "-flinkboot-configurations", "classpath:job-test.yaml"
-        ).configuration(MyApplicationConfig.class);
+    void shouldLoadDefaultConfiguration() throws Exception {
+        MyApplicationConfig config = Flinkboot.initialize()
+            .configuration(MyApplicationConfig.class);
 
         assertNotNull(config);
-        assertEquals("unit-test-job", config.job().name());
     }
 }
 ```
 
 ---
 
-### Loading the Default Classpath Configuration
+### Loading a specific configuration file
 
-If your test relies on the default configuration file (`src/test/resources/job-configuration.yaml`), you can call `Flinkboot.initialize()` with no arguments:
+Pass `-flinkboot-configurations` with an explicit resource scheme prefix:
 
 ```java
 @Test
-@DisplayName("Should load default configuration from classpath:job-configuration.yaml")
-void testLoadDefaultConfiguration() throws Exception {
-    MyApplicationConfig config = Flinkboot.initialize()
-        .configuration(MyApplicationConfig.class);
+void shouldLoadSpecificConfiguration() throws Exception {
+    MyApplicationConfig config = Flinkboot.initialize(
+        "-flinkboot-configurations", "classpath:job-test.yaml"
+    ).configuration(MyApplicationConfig.class);
 
     assertNotNull(config);
 }
@@ -111,14 +63,13 @@ void testLoadDefaultConfiguration() throws Exception {
 
 ---
 
-### Loading Multiple Configuration Files
+### Loading multiple merged configurations
 
-You can pass multiple comma-separated configuration paths to test profile overrides or multi-file setups:
+You can pass multiple comma-separated configuration paths to test profile overrides:
 
 ```java
 @Test
-@DisplayName("Should load and merge base and environment override configurations")
-void testLoadMultipleConfigurations() throws Exception {
+void shouldLoadMultipleConfigurations() throws Exception {
     MyApplicationConfig config = Flinkboot.initialize(
         "-flinkboot-configurations",
         "classpath:config-base.yaml,classpath:config-test-env.yaml"
@@ -130,14 +81,13 @@ void testLoadMultipleConfigurations() throws Exception {
 
 ---
 
-### Loading Files from the File System
+### Loading files from the file system
 
-You can also target files outside the classpath using the `file:` scheme prefix:
+Target external configuration files outside the classpath using the `file:` prefix:
 
 ```java
 @Test
-@DisplayName("Should load configuration from local file system")
-void testLoadFromFileSystem() throws Exception {
+void shouldLoadFromFileSystem() throws Exception {
     MyApplicationConfig config = Flinkboot.initialize(
         "-flinkboot-configurations", "file:/etc/flinkboot/my-config.yaml"
     ).configuration(MyApplicationConfig.class);
@@ -148,14 +98,13 @@ void testLoadFromFileSystem() throws Exception {
 
 ---
 
-### Testing with Flags and CLI Parameters
+### Testing with flags and CLI parameters
 
-Because `Flinkboot.initialize(String... args)` takes standard command-line arguments, you can easily test configuration behavior alongside custom flags and parameters:
+You can pass custom flags and parameters inline:
 
 ```java
 @Test
-@DisplayName("Should load configuration with flags and parameters")
-void testLoadConfigurationWithOptions() throws Exception {
+void shouldLoadConfigurationWithOptions() throws Exception {
     Flinkboot boot = Flinkboot.initialize(
         "-flinkboot-configurations", "classpath:job-test.yaml",
         "--dry-run",
@@ -174,23 +123,14 @@ void testLoadConfigurationWithOptions() throws Exception {
 
 ---
 
-## 4. Scheme Prefix Requirement
+## 3. Scheme prefixes
 
-Each path passed to `-flinkboot-configurations` **must explicitly specify a resource scheme prefix**:
+Each path passed to `-flinkboot-configurations` must specify a valid resource scheme:
 
-| Scheme Prefix | Target Location                                 | Example                        |
+| Scheme prefix | Target location                                 | Example                        |
 |:--------------|:------------------------------------------------|:-------------------------------|
 | `classpath:`  | Classpath resources (e.g. `src/test/resources`) | `"classpath:job-test.yaml"`    |
 | `resource:`   | Alias for classpath resources                   | `"resource:job-test.yaml"`     |
 | `file:`       | Absolute or relative file system paths          | `"file:/tmp/test-config.yaml"` |
 
-> [!IMPORTANT]
-> Omitting the scheme prefix (e.g., passing `"job-test.yaml"` without `classpath:`) will throw an `UnrecognizedResourceException`. Always include `classpath:` or `file:`. See the [CLI Options, Parameters & Built-in Checks](../configuration/cli-parameters-and-reserved-keys.md) guide for more information on the underlying `Resource` abstraction.
-
----
-
-## Related Guides
-
-* [How to Assert Java Serialization Compliance](assert-serialization-compliance.md)
-* [How to Assert Flink POJO Compliance](assert-pojo-compliance.md)
-* [How to Collect Stream Elements in Tests](collect-stream-elements-in-tests.md)
+Omitting the prefix will throw an `UnrecognizedResourceException`.

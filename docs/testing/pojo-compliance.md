@@ -1,10 +1,10 @@
 ---
-title: Testing Flink POJO compliance
-sidebar_label: Testing Flink POJO compliance
+title: POJO compliance
+sidebar_label: POJO compliance
 description: Assert Apache Flink POJO compliance recursively in tests to prevent Kryo fallback using FlinkbootAssertions.
 ---
 
-# Testing Flink POJO compliance
+# POJO compliance
 
 Flinkboot provides test assertions to ensure your data classes strictly comply with Apache Flink's POJO serialization requirements and prevent runtime Kryo fallback.
 

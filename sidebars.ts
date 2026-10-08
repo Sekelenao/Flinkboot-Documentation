@@ -50,10 +50,18 @@ const sidebars: SidebarsConfig = {
       label: 'Testing',
       collapsed: true,
       items: [
-        {type: 'doc', id: 'testing/testing-flink-pojo-compliance', label: 'Testing Flink POJO compliance'},
-        {type: 'doc', id: 'testing/assert-serialization-compliance', label: 'Serialization Compliance'},
-        {type: 'doc', id: 'testing/collect-stream-elements-in-tests', label: 'Collecting Sink'},
-        {type: 'doc', id: 'testing/load-configurations-in-tests', label: 'Test Configurations'},
+        {type: 'doc', id: 'testing/pojo-compliance', label: 'POJO compliance'},
+        {type: 'doc', id: 'testing/serialization-compliance', label: 'Serialization compliance'},
+        {type: 'doc', id: 'testing/collecting-sink-for-integration-testing', label: 'Collecting sink for integration testing'},
+        {type: 'doc', id: 'testing/load-configurations-in-tests', label: 'Loading configuration in tests'},
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Good practices',
+      collapsed: true,
+      items: [
+        {type: 'doc', id: 'good-practices/configuration-serialization-for-operators', label: 'Configuration serialization for operators'},
       ],
     },
   ],

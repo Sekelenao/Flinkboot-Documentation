@@ -7,12 +7,19 @@
     },
     {
       "type": "category",
-      "label": "Setup & BOM",
+      "label": "Setup",
       "collapsed": true,
       "items": [
-        {"type": "doc", "id": "setup/compatibility", "label": "Compatibility Matrix"},
-        {"type": "doc", "id": "setup/bom-managed-dependencies", "label": "BOM & Dependencies"},
-        {"type": "doc", "id": "setup/avoid-dependency-conflicts", "label": "Classpath Conflicts"}
+        {
+          "type": "doc",
+          "id": "setup/compatibility",
+          "label": "Compatibility"
+        },
+        {
+          "type": "doc",
+          "id": "setup/setup-a-project",
+          "label": "Installation"
+        }
       ]
     },
     {
@@ -20,13 +27,26 @@
       "label": "Configuration",
       "collapsed": true,
       "items": [
-        {"type": "doc", "id": "configuration/load-configurations", "label": "Load Configurations"},
-        {"type": "doc", "id": "configuration/configure-execution-environment", "label": "Execution Environment"},
-        {"type": "doc", "id": "configuration/load-a-parameter", "label": "Load Parameters"},
-        {"type": "doc", "id": "configuration/load-a-flag", "label": "Load Flags"},
-        {"type": "doc", "id": "configuration/load-resources", "label": "Load Resources"},
-        {"type": "doc", "id": "configuration/reserved-keys", "label": "Reserved Keys"},
-        {"type": "doc", "id": "configuration/validate-custom-configurations", "label": "Custom Validation"}
+        {
+          "type": "doc",
+          "id": "configuration/loading-configuration",
+          "label": "Loading configuration"
+        },
+        {
+          "type": "doc",
+          "id": "configuration/validating-configuration",
+          "label": "Validating configuration"
+        },
+        {
+          "type": "doc",
+          "id": "configuration/auto-configure-execution-environment",
+          "label": "Bootstrapping execution environment"
+        },
+        {
+          "type": "doc",
+          "id": "configuration/resolving-cli-and-environment-parameters",
+          "label": "Resolving CLI & environment parameters"
+        }
       ]
     },
     {
@@ -34,18 +54,33 @@
       "label": "Connectors",
       "collapsed": true,
       "items": [
-        {"type": "doc", "id": "kafka/configure-kafka-source", "label": "Kafka Source"},
-        {"type": "doc", "id": "kafka/configure-kafka-sink", "label": "Kafka Sink"},
-        {"type": "doc", "id": "fluss/configure-fluss-source", "label": "Fluss Source"},
-        {"type": "doc", "id": "fluss/configure-fluss-sink", "label": "Fluss Sink"}
+        {
+          "type": "doc",
+          "id": "connectors/kafka",
+          "label": "Apache Kafka"
+        },
+        {
+          "type": "doc",
+          "id": "connectors/fluss",
+          "label": "Apache Fluss"
+        }
       ]
     },
     {
       "type": "category",
-      "label": "Serialization",
+      "label": "Utilities",
       "collapsed": true,
       "items": [
-        {"type": "doc", "id": "serialization/serialize-jdk-types", "label": "JDK Types & POJOs"}
+        {
+          "type": "doc",
+          "id": "utilities/loading-resources",
+          "label": "Loading resources"
+        },
+        {
+          "type": "doc",
+          "id": "utilities/serializing-jdk-types",
+          "label": "Serializing JDK types"
+        }
       ]
     },
     {
@@ -53,10 +88,38 @@
       "label": "Testing",
       "collapsed": true,
       "items": [
-        {"type": "doc", "id": "testing/assert-pojo-compliance", "label": "POJO Compliance"},
-        {"type": "doc", "id": "testing/assert-serialization-compliance", "label": "Serialization Compliance"},
-        {"type": "doc", "id": "testing/collect-stream-elements-in-tests", "label": "Collecting Sink"},
-        {"type": "doc", "id": "testing/load-configurations-in-tests", "label": "Test Configurations"}
+        {
+          "type": "doc",
+          "id": "testing/pojo-compliance",
+          "label": "POJO compliance"
+        },
+        {
+          "type": "doc",
+          "id": "testing/serialization-compliance",
+          "label": "Serialization compliance"
+        },
+        {
+          "type": "doc",
+          "id": "testing/collecting-sink-for-integration-testing",
+          "label": "Collecting sink for integration testing"
+        },
+        {
+          "type": "doc",
+          "id": "testing/load-configurations-in-tests",
+          "label": "Loading configuration in tests"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Good practices",
+      "collapsed": true,
+      "items": [
+        {
+          "type": "doc",
+          "id": "good-practices/configuration-serialization-for-operators",
+          "label": "Configuration serialization for operators"
+        }
       ]
     }
   ]
