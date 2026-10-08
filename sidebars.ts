@@ -21,7 +21,7 @@ const sidebars: SidebarsConfig = {
       label: 'Configuration',
       collapsed: true,
       items: [
-        {type: 'doc', id: 'configuration/binding-configuration', label: 'Binding configuration'},
+        {type: 'doc', id: 'configuration/loading-configuration', label: 'Loading configuration'},
         {type: 'doc', id: 'configuration/validating-configuration', label: 'Validating configuration'},
         {type: 'doc', id: 'configuration/auto-configure-execution-environment', label: 'Bootstrapping execution environment'},
         {type: 'doc', id: 'configuration/cli-parameters-and-reserved-keys', label: 'CLI & Built-in Checks'},

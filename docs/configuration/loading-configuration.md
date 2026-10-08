@@ -1,14 +1,14 @@
 ---
-title: Binding configuration
-sidebar_label: Binding configuration
-description: Define type-safe configuration models with Jackson, Java Records, and immutable classes in Flinkboot.
+title: Loading configuration
+sidebar_label: Loading configuration
+description: Define and load type-safe configuration models with Jackson, Java Records, and immutable classes in Flinkboot.
 ---
 
-# Binding configuration
+# Loading configuration
 
 In real-world Apache Flink applications, pipelines require custom business parameters alongside execution settings: alert thresholds, window intervals, database endpoints, or external API keys.
 
-Under the hood, configuration deserialization is powered by [Jackson](https://github.com/FasterXML/jackson). Standard Java types, collections, and Java 8+ temporal types (`Duration`, `Instant`, `LocalDate`) are supported out of the box through Jackson's Java Time module.
+Under the hood, configuration deserialization is powered by [Jackson](https://github.com/FasterXML/jackson). Standard Java types, collections, and Java temporal types are supported out of the box through Jackson's Java Time module.
 
 YAML keys map to Java fields using Jackson's `@JsonProperty("key-name")` annotation. Property names are matched case-insensitively.
 
