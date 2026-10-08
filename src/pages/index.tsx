@@ -39,7 +39,7 @@ export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title="Flinkboot — Bootstrapping & Reliability for Apache Flink"
+      title="Flinkboot: Faster, safer. The Flink framework."
       description="Fail fast on configuration, serialize natively without Kryo, and bootstrap Apache Flink stream pipelines with zero boilerplate.">
       <HomepageHeader />
     </Layout>

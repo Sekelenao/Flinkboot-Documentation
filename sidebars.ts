@@ -21,13 +21,10 @@ const sidebars: SidebarsConfig = {
       label: 'Configuration',
       collapsed: true,
       items: [
-        {type: 'doc', id: 'configuration/load-configurations', label: 'Load Configurations'},
-        {type: 'doc', id: 'configuration/configure-execution-environment', label: 'Execution Environment'},
-        {type: 'doc', id: 'configuration/load-a-parameter', label: 'Load Parameters'},
-        {type: 'doc', id: 'configuration/load-a-flag', label: 'Load Flags'},
-        {type: 'doc', id: 'configuration/load-resources', label: 'Load Resources'},
-        {type: 'doc', id: 'configuration/reserved-keys', label: 'Reserved Keys'},
-        {type: 'doc', id: 'configuration/validate-custom-configurations', label: 'Custom Validation'},
+        {type: 'doc', id: 'configuration/binding-configuration', label: 'Binding configuration'},
+        {type: 'doc', id: 'configuration/validating-configuration', label: 'Validating configuration'},
+        {type: 'doc', id: 'configuration/auto-configure-execution-environment', label: 'Bootstrapping execution environment'},
+        {type: 'doc', id: 'configuration/cli-parameters-and-reserved-keys', label: 'CLI & Built-in Checks'},
       ],
     },
     {

@@ -185,7 +185,7 @@ Each path passed to `-flinkboot-configurations` **must explicitly specify a reso
 | `file:`       | Absolute or relative file system paths          | `"file:/tmp/test-config.yaml"` |
 
 > [!IMPORTANT]
-> Omitting the scheme prefix (e.g., passing `"job-test.yaml"` without `classpath:`) will throw an `UnrecognizedResourceException`. Always include `classpath:` or `file:`. See the [How to Load Resources](../configuration/load-resources.md) guide for more information on the underlying `Resource` abstraction.
+> Omitting the scheme prefix (e.g., passing `"job-test.yaml"` without `classpath:`) will throw an `UnrecognizedResourceException`. Always include `classpath:` or `file:`. See the [CLI Options, Parameters & Built-in Checks](../configuration/cli-parameters-and-reserved-keys.md) guide for more information on the underlying `Resource` abstraction.
 
 ---
 

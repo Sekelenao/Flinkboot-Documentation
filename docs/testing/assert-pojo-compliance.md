@@ -137,8 +137,8 @@ field of `UserActivity` falls back to Kryo.
 
 ## 5. Asserting an Existing `TypeInformation`
 
-When a type description already exists — produced by a custom `TypeInfoFactory`, by
-`TypeInformation.of(...)`, or returned by a Flink operator — pass it directly:
+When a type description already exists (produced by a custom `TypeInfoFactory`, by
+`TypeInformation.of(...)`, or returned by a Flink operator), pass it directly:
 
 ```java
 import org.apache.flink.api.common.typeinfo.TypeInformation;

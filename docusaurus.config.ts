@@ -175,11 +175,11 @@ const config: Config = {
       },
       {
         property: 'og:image:alt',
-        content: 'Flinkboot Logo — Faster, safer. The Flink framework.',
+        content: 'Flinkboot Logo: Faster, safer. The Flink framework.',
       },
       {
         name: 'twitter:image:alt',
-        content: 'Flinkboot Logo — Faster, safer. The Flink framework.',
+        content: 'Flinkboot Logo: Faster, safer. The Flink framework.',
       },
     ],
     colorMode: {
@@ -201,14 +201,20 @@ const config: Config = {
           label: 'Documentation',
         },
         {
+          href: 'https://github.com/Sekelenao/Flinkboot/blob/main/CHANGELOG.md',
+          label: 'Changelog',
+          position: 'right',
+        },
+        {
           href: 'https://central.sonatype.com/artifact/io.github.sekelenao/flinkboot-core',
           label: 'Maven Central',
           position: 'right',
         },
         {
           href: 'https://github.com/Sekelenao/Flinkboot',
-          label: 'GitHub',
           position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
         },
       ],
     },
