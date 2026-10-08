@@ -1,10 +1,10 @@
 ---
-title: Resolving runtime arguments
-sidebar_label: Resolving runtime arguments
-description: How Flinkboot parses, resolves, and validates runtime CLI arguments, boolean flags, unified resources, and reserved framework settings.
+title: Resolving CLI & environment parameters
+sidebar_label: Resolving CLI & environment parameters
+description: How Flinkboot parses, resolves, and validates runtime CLI arguments, boolean flags, and reserved framework settings.
 ---
 
-# Resolving runtime arguments
+# Resolving CLI & environment parameters
 
 In addition to static YAML files, streaming applications frequently need to inspect runtime command-line arguments, toggle operational flags, read external resources, and leverage framework-level flags.
 
