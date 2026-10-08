@@ -40,28 +40,43 @@ kafka-source:
   topics:
     - "orders"
     - "payments"
-  starting-offsets:
-    strategy: EARLIEST
+  starting-offsets: "EARLIEST"
   properties:
     session.timeout.ms: "45000"
 ```
 
-For bounded batch executions, specify `boundedness: BOUNDED` and configure `stopping-offsets`:
+For timestamp-based positioning:
 
 ```yaml
 kafka-source:
-  name: "batch-orders-source"
+  name: "replay-orders-source"
   bootstrap-servers:
     - "localhost:9092"
-  group-id: "analytics-batch"
-  topic-pattern: "^analytics-.*$"
-  boundedness: BOUNDED
-  starting-offsets:
-    strategy: TIMESTAMP
-    timestamp: 1689717600000
-  stopping-offsets:
-    strategy: TIMESTAMP
-    timestamp: 1689721200000
+  group-id: "replay-consumers"
+  topics:
+    - "orders"
+  starting-offsets: "TIMESTAMP"
+  starting-offsets-timestamp: 1689717600000
+```
+
+For explicit partition offsets:
+
+```yaml
+kafka-source:
+  name: "partition-orders-source"
+  bootstrap-servers:
+    - "localhost:9092"
+  group-id: "partition-consumers"
+  topics:
+    - "orders"
+  starting-offsets: "OFFSETS"
+  starting-offsets-partition-offsets:
+    - topic: "orders"
+      partition: 0
+      offset: 12500
+    - topic: "orders"
+      partition: 1
+      offset: 14200
 ```
 
 ### Configuration reference
@@ -73,20 +88,20 @@ kafka-source:
 | `group-id` | String | **Yes** | `@NotBlank` | Consumer group ID. |
 | `topics` | `List<String>` | Conditional | items `@NotBlank` | Explicit topic subscriptions (mutually exclusive with `topic-pattern`). |
 | `topic-pattern` | String | Conditional | Valid regex | Topic subscription regex pattern (mutually exclusive with `topics`). |
-| `starting-offsets` | `KafkaOffsetProperties` | **Yes** | `@NotNull @Valid` | Offset strategy used on startup. |
-| `boundedness` | Enum | No | Enum | `UNBOUNDED` (default) or `BOUNDED`. |
-| `stopping-offsets` | `KafkaOffsetProperties` | Conditional | `@Valid` | Stopping offset position. **Mandatory** when `boundedness` is `BOUNDED`. |
+| `starting-offsets` | Enum | **Yes** | `@NotNull` | Startup strategy: `EARLIEST`, `LATEST`, `COMMITTED`, `TIMESTAMP`, `OFFSETS`. |
+| `starting-offsets-timestamp` | Long | Conditional | `@PositiveOrZero` | Timestamp in milliseconds (**mandatory** if `starting-offsets: TIMESTAMP`, forbidden otherwise). |
+| `starting-offsets-partition-offsets` | List | Conditional | `@Valid` items | List of partition starting offsets (**mandatory** if `starting-offsets: OFFSETS`, forbidden otherwise). |
 | `properties` | `Map<String, String>` | No | Free-form map | Additional Kafka consumer tuning properties (e.g. `session.timeout.ms`). |
 
-### Offset positioning (`starting-offsets` / `stopping-offsets`)
+### Offset strategies (`starting-offsets`)
 
-| Strategy | Required Parameters | Prohibited Parameters | Description |
+| Strategy | Required Complementary Keys | Forbidden Complementary Keys | Description |
 |:---|:---|:---|:---|
-| `EARLIEST` | None | `timestamp`, `partitions` | Start from earliest available log offsets. |
-| `LATEST` | None | `timestamp`, `partitions` | Start from latest log offsets. |
-| `COMMITTED` | None | `timestamp`, `partitions` | Start from consumer group committed offsets. |
-| `TIMESTAMP` | `timestamp` (`Long`) | `partitions` | Position based on record epoch millisecond timestamps. |
-| `OFFSETS` | `partitions` (`Map<Integer, Long>`) | `timestamp` | Explicit mapping of partition indices to exact offsets. |
+| `EARLIEST` | None | `starting-offsets-timestamp`, `starting-offsets-partition-offsets` | Start from earliest available log offsets. |
+| `LATEST` | None | `starting-offsets-timestamp`, `starting-offsets-partition-offsets` | Start from latest log offsets. |
+| `COMMITTED` | None | `starting-offsets-timestamp`, `starting-offsets-partition-offsets` | Start from consumer group committed offsets. |
+| `TIMESTAMP` | `starting-offsets-timestamp` (`Long`) | `starting-offsets-partition-offsets` | Position based on record epoch millisecond timestamps. |
+| `OFFSETS` | `starting-offsets-partition-offsets` (`List`) | `starting-offsets-timestamp` | Explicit starting offsets per topic partition. |
 
 ---
 

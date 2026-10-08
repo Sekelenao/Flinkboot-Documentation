@@ -93,8 +93,7 @@ kafka-source:
   topics:
     - "orders-v1"
   group-id: "fraud-detector-service"
-  starting-offsets:
-    strategy: LATEST
+  starting-offsets: LATEST
   # Universal escape hatch for vendor client tuning & SSL credentials
   properties:
     security.protocol: "SSL"

@@ -240,8 +240,8 @@ local-web-ui:
 
 | Property Key | Type | Required | Validation | Description |
 |:---|:---|:---|:---|:---|
-| `enabled` | Boolean | No | Boolean | Starts a local Flink MiniCluster with the WebUI dashboard active during IDE testing. |
-| `port` | Integer | No | `@Positive` | WebUI REST port. Defaults to `8081`. |
+| `enabled` | Boolean | **Yes** (if block present) | `@NotNull` | Starts a local Flink MiniCluster with the WebUI dashboard active during IDE testing. |
+| `port` | Integer | No | `@Range(min = 0, max = 65535)` | WebUI REST port. Defaults to `8081`. Set to `0` for dynamic port allocation. |
 | `bind-address` | String | No | `@NotBlank` | WebUI host bind address. Defaults to `localhost`. |
 
 Enabling `local-web-ui.enabled: true` requires `org.apache.flink:flink-runtime-web` on the classpath:
