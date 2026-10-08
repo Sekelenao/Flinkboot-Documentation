@@ -1,60 +1,44 @@
-# How to Assert Flink POJO Compliance
+---
+title: Testing Flink POJO compliance
+sidebar_label: Testing Flink POJO compliance
+description: Assert Apache Flink POJO compliance recursively in tests to prevent Kryo fallback using FlinkbootAssertions.
+---
 
-Flinkboot provides a test utility to ensure your data classes comply with Apache Flink's strict POJO serialization requirements.
+# Testing Flink POJO compliance
+
+Flinkboot provides test assertions to ensure your data classes strictly comply with Apache Flink's POJO serialization requirements and prevent runtime Kryo fallback.
 
 ---
 
-## 1. What is Flink POJO Compliance?
+## 1. Maven dependency
 
-Apache Flink uses an optimized serializer (`PojoSerializer`) for data serialization within pipelines. When Flink recognizes a class as a valid POJO, it can perform direct field access and serialize/deserialize elements much faster than falling back to general-purpose serializers like **Kryo**.
-
-If your class is **not** recognized as a Flink POJO:
-* Flink will fall back to Kryo serialization (which is significantly slower and less space-efficient).
-* Flink will not be able to use key-selection on nested fields (e.g. `keyBy("fieldName")`).
-
-### Flink's POJO Requirements:
-To be recognized as a POJO by Flink's `TypeExtractor`, a class must meet the following criteria:
-1. The class must be **public** and standalone (or a `public static` nested class, not an inner class).
-2. It must have a **public zero-argument constructor** (default constructor).
-3. All fields must be either:
-   * **public** (non-final), or
-   * have **public getter and setter** methods following the JavaBean naming convention (e.g. `getField()` and `setField(...)`).
-4. **No Generic/Kryo Fallback Fields**: No fields (or nested fields) may fall back to `GenericTypeInfo` (Kryo fallback serialization). `FlinkbootAssertions.assertThat(MyClass.class).isPojo()` inspects fields recursively to ensure pure native Flink serialization (including types registered via custom `@TypeInfo` factories).
-
----
-
-## 2. Maven Dependencies
-
-To write compliance tests, import the Flinkboot BOM in your `<dependencyManagement>` and add `flinkboot-test` alongside Flink APIs in your `pom.xml`:
+Add `flinkboot-test` to your `pom.xml`:
 
 ```xml
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>io.github.sekelenao</groupId>
-            <artifactId>flinkboot</artifactId>
-            <version>${flinkboot.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
-
 <dependencies>
-    <!-- Flinkboot Test Utility -->
     <dependency>
         <groupId>io.github.sekelenao</groupId>
         <artifactId>flinkboot-test</artifactId>
         <scope>test</scope>
     </dependency>
-
-    <!-- Flink Streaming API (Provided by Flink cluster) -->
-    <dependency>
-        <groupId>org.apache.flink</groupId>
-        <artifactId>flink-streaming-java</artifactId>
-    </dependency>
 </dependencies>
 ```
+
+---
+
+## 2. Flink POJO requirements
+
+Apache Flink uses an optimized serializer (`PojoSerializer`) for data serialization within pipelines. When Flink recognizes a class as a valid POJO, it can perform direct field access and serialize elements with minimal overhead.
+
+If your class is not recognized as a valid POJO:
+* Flink falls back to Kryo serialization, which is slower, less space-efficient, and risky for state schema evolution.
+* Flink will not be able to use key-selection on nested fields (e.g. `keyBy("fieldName")`).
+
+A class must satisfy the following criteria:
+1. The class must be **public** and standalone (or a `public static` nested class).
+2. It must have a **public zero-argument constructor**.
+3. All fields must be either **public** (non-final) or have **public getter and setter** methods following JavaBean conventions.
+4. **No Kryo fallback fields**: No fields (or nested fields) may resolve to `GenericTypeInfo`. `FlinkbootAssertions.assertThat(MyClass.class).isPojo()` inspects fields recursively to guarantee pure native Flink serialization.
 
 ---
 
@@ -110,7 +94,7 @@ If the class violates any of Flink's requirements or contains fields falling bac
 
 ---
 
-## 4. Asserting Generic Types
+## 4. Asserting generic types
 
 A `Class` literal erases generic parameters, so `assertThat(Map.class)` cannot tell Flink which key and
 value types are involved. Use a `TypeHint` to keep them, exactly as you would when hinting a Flink operator:
@@ -135,7 +119,7 @@ field of `UserActivity` falls back to Kryo.
 
 ---
 
-## 5. Asserting an Existing `TypeInformation`
+## 5. Asserting existing `TypeInformation`
 
 When a type description already exists (produced by a custom `TypeInfoFactory`, by
 `TypeInformation.of(...)`, or returned by a Flink operator), pass it directly:
@@ -159,10 +143,3 @@ class UserActivityTypeInfoTest {
 This is the most direct way to check that a custom factory really produces a native Flink serializer
 instead of a Kryo fallback.
 
----
-
-## Related Guides
-
-* [How to Assert Java Serialization Compliance](assert-serialization-compliance.md)
-* [How to Collect Stream Elements in Tests](collect-stream-elements-in-tests.md)
-* [How to Load Configurations in Tests](load-configurations-in-tests.md)
