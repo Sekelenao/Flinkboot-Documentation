@@ -1,12 +1,18 @@
-# How to Serialize JDK Types (Time, Duration, Collections)
+---
+title: Serializing JDK types
+sidebar_label: Serializing JDK types
+description: Native Flink serialization for LocalDateTime, LocalDate, Duration, and collections using Flinkboot TypeInfoFactory.
+---
 
-In Apache Flink, POJO fields using `LocalDateTime`, `LocalDate`, `LocalTime`, `Duration`, `List`, or `Map` default to **Kryo serialization** (which is slower, less space-efficient, and risky for state schema evolution).
+# Serializing JDK types
+
+In Apache Flink, POJO fields using `LocalDateTime`, `LocalDate`, `LocalTime`, `Duration`, `List`, or `Map` default to Kryo serialization, which is slower, less space-efficient, and risky for state schema evolution.
 
 Flinkboot provides built-in, optimized `TypeInfoFactory` classes to enable native Flink serialization for these types.
 
 ---
 
-## 1. Available Factories
+## 1. Available factories
 
 | Field Type                | Flinkboot Factory Class        | Serializer / Underlying Type        |
 |:--------------------------|:-------------------------------|:------------------------------------|
@@ -19,7 +25,7 @@ Flinkboot provides built-in, optimized `TypeInfoFactory` classes to enable nativ
 
 ---
 
-## 2. Usage in POJO Classes
+## 2. Usage in POJO classes
 
 Annotate your POJO fields with Flink's `@TypeInfo` annotation:
 
@@ -67,14 +73,14 @@ public class UserEvent {
 
 ---
 
-## 3. Edge Cases and Nuances
+## 3. Edge cases and nuances
 
-### A. Concrete Implementations for `List` and `Map`
+### A. Concrete implementations for `List` and `Map`
 Flink's built-in `ListSerializer` and `MapSerializer` instantiate `java.util.ArrayList` and `java.util.HashMap` upon deserialization.
 * If your POJO uses `java.util.List` or `java.util.Map`, it will be deserialized as an `ArrayList` or `HashMap`.
 * If your application relies on specific implementations (such as `java.util.TreeMap` for sorted keys or immutable collections), you must use a custom serializer.
 
-### B. Nested JDK Types inside Collections
+### B. Nested JDK types inside collections
 In Java and Flink, the `@TypeInfo` annotation cannot be placed directly on generic type arguments (e.g. `List<@TypeInfo(...) Duration>`).
 To serialize `List<Duration>` natively without Kryo, create a dedicated container factory:
 ```java
@@ -91,7 +97,7 @@ And annotate the field:
 public List<Duration> durations;
 ```
 
-### C. Custom Domain Classes in Collections
+### C. Custom domain classes in collections
 If you have a collection of custom DTOs (e.g. `List<MyItem>`), annotate `MyItem` at the class level:
 ```java
 @TypeInfo(MyItemTypeInfoFactory.class)
@@ -102,13 +108,13 @@ Flink's `TypeExtractor` will automatically find the class-level annotation when 
 ### D. Nullability
 Flink's native serializers for collections and time types properly support `null` values within POJO fields.
 
-### E. Generic Bounds vs Wildcards in Collections
+### E. Generic bounds vs wildcards in collections
 * **Bounded Class Generics (`Container<T extends ParentDto>`)**: When a concrete class argument is provided (e.g. `Container<ChildDto>`), Flink's `TypeExtractor` resolves `ChildDto` natively as a POJO.
 * **Wildcards in Collections (`List<? extends ParentDto>`)**: Wildcard type arguments cannot be resolved into concrete type parameters by Flink's `TypeInfoFactory` and therefore fall back to Kryo serialization (`GenericTypeInfo`). Always declare collections with concrete type arguments (e.g. `List<ParentDto>` instead of `List<? extends ParentDto>`).
 
 ---
 
-## 4. POJO Compliance Validation
+## 4. POJO compliance validation
 
 To verify that your POJOs are properly configured and do not fall back to Kryo serialization, validate them in your tests using `FlinkbootAssertions.assertThat(...).isPojo()` from `flinkboot-test`:
 
