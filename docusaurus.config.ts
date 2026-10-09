@@ -2,7 +2,6 @@ import {themes as prismThemes, type PrismTheme} from 'prism-react-renderer';
 import type {Config, Plugin} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import {generateLlmsFiles} from './scripts/generate-llms';
-import versions from './versions.json';
 
 const javaDarkTheme: PrismTheme = {
   plain: {
@@ -175,38 +174,11 @@ const config: Config = {
           customCss: './src/css/custom.css',
         },
         sitemap: {
-          createSitemapItems: async (params) => {
-            const {defaultCreateSitemapItems, ...rest} = params;
-            const items = await defaultCreateSitemapItems(rest);
-
-            const llmsVersionItems = (versions as string[]).flatMap((v) => [
-              {
-                url: `https://flinkboot.com/llms-${v}.txt`,
-                changefreq: 'weekly' as const,
-                priority: 0.7,
-              },
-              {
-                url: `https://flinkboot.com/llms-${v}-full.txt`,
-                changefreq: 'weekly' as const,
-                priority: 0.7,
-              },
-            ]);
-
-            return [
-              ...items,
-              {
-                url: 'https://flinkboot.com/llms.txt',
-                changefreq: 'weekly' as const,
-                priority: 0.8,
-              },
-              {
-                url: 'https://flinkboot.com/llms-full.txt',
-                changefreq: 'weekly' as const,
-                priority: 0.8,
-              },
-              ...llmsVersionItems,
-            ];
-          },
+          lastmod: 'date',
+          changefreq: 'weekly',
+          priority: 0.5,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
         },
       } satisfies Preset.Options,
     ],
