@@ -45,7 +45,10 @@ public record AppConfig(
 ```java
 // Untyped, error-prone manual Jackson tree traversal
 ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-JsonNode root = mapper.readTree(new File("application.yaml"));
+JsonNode root;
+try (var is = Files.newInputStream(Path.of("job-configuration.yaml"))) {
+    root = mapper.readTree(is);
+}
 
 // Cryptic NullPointerExceptions at runtime if a single key is missing or misspelled
 String jobName = root.path("job").path("name").asText();
@@ -74,7 +77,7 @@ Your configuration files map 1:1 to your type-safe DTOs. Instead of scattering p
   <TabItem value="flinkboot" label="With Flinkboot" default>
 
 ```yaml
-# application.yaml - Maps 1:1 to your AppConfig DTO
+# src/main/resources/job-configuration.yaml
 job:
   name: "order-fraud-detector"
   parallelism: 8

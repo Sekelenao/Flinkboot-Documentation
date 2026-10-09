@@ -40,43 +40,34 @@ kafka-source:
   topics:
     - "orders"
     - "payments"
-  starting-offsets: "EARLIEST"
+  starting-offsets:
+    strategy: EARLIEST
+  # Escape hatch: any native Kafka consumer property (SSL, SASL, timeouts)
   properties:
+    security.protocol: "SASL_SSL"
+    sasl.mechanism: "SCRAM-SHA-512"
+    sasl.jaas.config: "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"${KAFKA_USER}\" password=\"${KAFKA_PASSWORD}\";"
+    ssl.truststore.location: "/var/private/ssl/kafka.truststore.jks"
+    ssl.truststore.password: "${KAFKA_TRUSTSTORE_PASSWORD}"
     session.timeout.ms: "45000"
 ```
 
-For timestamp-based positioning:
+For bounded batch executions, specify `boundedness: BOUNDED` and configure `stopping-offsets`:
 
 ```yaml
 kafka-source:
-  name: "replay-orders-source"
+  name: "batch-orders-source"
   bootstrap-servers:
     - "localhost:9092"
-  group-id: "replay-consumers"
-  topics:
-    - "orders"
-  starting-offsets: "TIMESTAMP"
-  starting-offsets-timestamp: 1689717600000
-```
-
-For explicit partition offsets:
-
-```yaml
-kafka-source:
-  name: "partition-orders-source"
-  bootstrap-servers:
-    - "localhost:9092"
-  group-id: "partition-consumers"
-  topics:
-    - "orders"
-  starting-offsets: "OFFSETS"
-  starting-offsets-partition-offsets:
-    - topic: "orders"
-      partition: 0
-      offset: 12500
-    - topic: "orders"
-      partition: 1
-      offset: 14200
+  group-id: "analytics-batch"
+  topic-pattern: "^analytics-.*$"
+  boundedness: BOUNDED
+  starting-offsets:
+    strategy: TIMESTAMP
+    timestamp: 1689717600000
+  stopping-offsets:
+    strategy: TIMESTAMP
+    timestamp: 1689721200000
 ```
 
 ### Configuration reference
@@ -88,20 +79,20 @@ kafka-source:
 | `group-id` | String | **Yes** | `@NotBlank` | Consumer group ID. |
 | `topics` | `List<String>` | Conditional | items `@NotBlank` | Explicit topic subscriptions (mutually exclusive with `topic-pattern`). |
 | `topic-pattern` | String | Conditional | Valid regex | Topic subscription regex pattern (mutually exclusive with `topics`). |
-| `starting-offsets` | Enum | **Yes** | `@NotNull` | Startup strategy: `EARLIEST`, `LATEST`, `COMMITTED`, `TIMESTAMP`, `OFFSETS`. |
-| `starting-offsets-timestamp` | Long | Conditional | `@PositiveOrZero` | Timestamp in milliseconds (**mandatory** if `starting-offsets: TIMESTAMP`, forbidden otherwise). |
-| `starting-offsets-partition-offsets` | List | Conditional | `@Valid` items | List of partition starting offsets (**mandatory** if `starting-offsets: OFFSETS`, forbidden otherwise). |
-| `properties` | `Map<String, String>` | No | Free-form map | Additional Kafka consumer tuning properties (e.g. `session.timeout.ms`). |
+| `starting-offsets` | `KafkaOffsetProperties` | **Yes** | `@NotNull @Valid` | Offset strategy used on startup. |
+| `boundedness` | Enum | No | Enum | `UNBOUNDED` (default) or `BOUNDED`. |
+| `stopping-offsets` | `KafkaOffsetProperties` | Conditional | `@Valid` | Stopping offset position. **Mandatory** when `boundedness` is `BOUNDED`. |
+| `properties` | `Map<String, String>` | No | Non-blank keys/values | Escape hatch passed to `KafkaSourceBuilder.setProperties(...)` (e.g. SSL, SASL, timeouts). |
 
-### Offset strategies (`starting-offsets`)
+### Offset positioning (`starting-offsets` / `stopping-offsets`)
 
-| Strategy | Required Complementary Keys | Forbidden Complementary Keys | Description |
+| Strategy | Required Parameters | Prohibited Parameters | Description |
 |:---|:---|:---|:---|
-| `EARLIEST` | None | `starting-offsets-timestamp`, `starting-offsets-partition-offsets` | Start from earliest available log offsets. |
-| `LATEST` | None | `starting-offsets-timestamp`, `starting-offsets-partition-offsets` | Start from latest log offsets. |
-| `COMMITTED` | None | `starting-offsets-timestamp`, `starting-offsets-partition-offsets` | Start from consumer group committed offsets. |
-| `TIMESTAMP` | `starting-offsets-timestamp` (`Long`) | `starting-offsets-partition-offsets` | Position based on record epoch millisecond timestamps. |
-| `OFFSETS` | `starting-offsets-partition-offsets` (`List`) | `starting-offsets-timestamp` | Explicit starting offsets per topic partition. |
+| `EARLIEST` | None | `timestamp`, `partitions` | Start from earliest available log offsets. |
+| `LATEST` | None | `timestamp`, `partitions` | Start from latest log offsets. |
+| `COMMITTED` | None | `timestamp`, `partitions` | Start from consumer group committed offsets. |
+| `TIMESTAMP` | `timestamp` (`Long`) | `partitions` | Position based on record epoch millisecond timestamps. |
+| `OFFSETS` | `partitions` (`Map<Integer, Long>`) | `timestamp` | Explicit mapping of partition indices to exact offsets. |
 
 ---
 
@@ -117,8 +108,11 @@ kafka-sink:
   topic: "fraud-alerts"
   delivery-guarantee: "EXACTLY_ONCE"
   transactional-id-prefix: "fraud-evaluator"
+  # Escape hatch: any native Kafka producer property (acks, compression, batching)
   properties:
     acks: "all"
+    compression.type: "zstd"
+    linger.ms: "20"
 ```
 
 ### Configuration reference
@@ -130,7 +124,7 @@ kafka-sink:
 | `topic` | String | **Yes** | `@NotBlank` | Target Kafka topic for emitted events. |
 | `delivery-guarantee` | Enum | **Yes** | `NONE`, `AT_LEAST_ONCE`, `EXACTLY_ONCE` | Delivery semantic guarantee. |
 | `transactional-id-prefix` | String | Conditional | String | Transactional prefix. **Mandatory** if `delivery-guarantee` is `EXACTLY_ONCE`, prohibited otherwise. |
-| `properties` | `Map<String, String>` | No | Non-blank keys/values | Custom Kafka producer client settings. |
+| `properties` | `Map<String, String>` | No | Non-blank keys/values | Escape hatch passed to `KafkaSinkBuilder.setKafkaProducerConfig(...)` (e.g. acks, compression, batching). |
 
 ---
 

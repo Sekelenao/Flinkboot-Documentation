@@ -102,11 +102,6 @@
           "type": "doc",
           "id": "testing/collecting-sink-for-integration-testing",
           "label": "Collecting sink for integration testing"
-        },
-        {
-          "type": "doc",
-          "id": "testing/load-configurations-in-tests",
-          "label": "Loading configuration in tests"
         }
       ]
     },

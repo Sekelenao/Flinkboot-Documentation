@@ -37,7 +37,12 @@ fluss-source:
   database: "analytics_db"
   table: "user_events"
   startup-mode: "EARLIEST"
+  # Escape hatch: any native Fluss client option (security, buffers, timeouts)
   properties:
+    client.security.protocol: "SASL_PLAINTEXT"
+    client.security.sasl.mechanism: "PLAIN"
+    client.security.sasl.username: "${FLUSS_USERNAME}"
+    client.security.sasl.password: "${FLUSS_PASSWORD}"
     client.scanner.fetch.max-bytes: "1048576"
 ```
 
@@ -64,7 +69,7 @@ fluss-source:
 | `table` | String | **Yes** | `@NotBlank` | Target Fluss table. |
 | `startup-mode` | Enum | **Yes** | `@NotNull` | Startup strategy: `EARLIEST`, `LATEST`, `FULL`, `TIMESTAMP`. |
 | `startup-timestamp` | Long | Conditional | `@PositiveOrZero` | Epoch millisecond timestamp (**mandatory** if `startup-mode: TIMESTAMP`, forbidden otherwise). |
-| `properties` | `Map<String, String>` | No | `@NotNull` entries | Additional Fluss client/scanner tuning options. |
+| `properties` | `Map<String, String>` | No | Non-blank keys/values | Escape hatch passed to `FlussSourceBuilder.setFlussConfig(...)` (e.g. SASL security, fetch sizes). |
 
 ---
 
@@ -79,9 +84,11 @@ fluss-sink:
     - "localhost:9123"
   database: "analytics_db"
   table: "user_aggregates"
+  # Escape hatch: any native Fluss writer option (batching, timeouts, acks)
   properties:
     client.writer.batch-size: "1mb"
     client.writer.batch-timeout: "50ms"
+    client.writer.acks: "all"
 ```
 
 ### Configuration reference
@@ -92,7 +99,7 @@ fluss-sink:
 | `bootstrap-servers` | `List<String>` | **Yes** | `@NotEmpty`, items `@NotBlank` | Addresses of Fluss coordinators. |
 | `database` | String | **Yes** | `@NotBlank` | Target Fluss database. |
 | `table` | String | **Yes** | `@NotBlank` | Target Fluss table. |
-| `properties` | `Map<String, String>` | No | `@NotNull` entries | Additional Fluss client/writer tuning options. |
+| `properties` | `Map<String, String>` | No | Non-blank keys/values | Escape hatch passed to `FlussSinkBuilder.setOptions(...)` (e.g. batch size, timeout, acks). |
 
 ---
 

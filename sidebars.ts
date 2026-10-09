@@ -53,7 +53,6 @@ const sidebars: SidebarsConfig = {
         {type: 'doc', id: 'testing/pojo-compliance', label: 'POJO compliance'},
         {type: 'doc', id: 'testing/serialization-compliance', label: 'Serialization compliance'},
         {type: 'doc', id: 'testing/collecting-sink-for-integration-testing', label: 'Collecting sink for integration testing'},
-        {type: 'doc', id: 'testing/load-configurations-in-tests', label: 'Loading configuration in tests'},
       ],
     },
     {

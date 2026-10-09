@@ -42,7 +42,13 @@ kafka-source:
     - "payments"
   starting-offsets:
     strategy: EARLIEST
+  # Escape hatch: any native Kafka consumer property (SSL, SASL, timeouts)
   properties:
+    security.protocol: "SASL_SSL"
+    sasl.mechanism: "SCRAM-SHA-512"
+    sasl.jaas.config: "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"${KAFKA_USER}\" password=\"${KAFKA_PASSWORD}\";"
+    ssl.truststore.location: "/var/private/ssl/kafka.truststore.jks"
+    ssl.truststore.password: "${KAFKA_TRUSTSTORE_PASSWORD}"
     session.timeout.ms: "45000"
 ```
 
@@ -76,7 +82,7 @@ kafka-source:
 | `starting-offsets` | `KafkaOffsetProperties` | **Yes** | `@NotNull @Valid` | Offset strategy used on startup. |
 | `boundedness` | Enum | No | Enum | `UNBOUNDED` (default) or `BOUNDED`. |
 | `stopping-offsets` | `KafkaOffsetProperties` | Conditional | `@Valid` | Stopping offset position. **Mandatory** when `boundedness` is `BOUNDED`. |
-| `properties` | `Map<String, String>` | No | Free-form map | Additional Kafka consumer tuning properties (e.g. `session.timeout.ms`). |
+| `properties` | `Map<String, String>` | No | Non-blank keys/values | Escape hatch passed to `KafkaSourceBuilder.setProperties(...)` (e.g. SSL, SASL, timeouts). |
 
 ### Offset positioning (`starting-offsets` / `stopping-offsets`)
 
@@ -102,8 +108,11 @@ kafka-sink:
   topic: "fraud-alerts"
   delivery-guarantee: "EXACTLY_ONCE"
   transactional-id-prefix: "fraud-evaluator"
+  # Escape hatch: any native Kafka producer property (acks, compression, batching)
   properties:
     acks: "all"
+    compression.type: "zstd"
+    linger.ms: "20"
 ```
 
 ### Configuration reference
@@ -115,7 +124,7 @@ kafka-sink:
 | `topic` | String | **Yes** | `@NotBlank` | Target Kafka topic for emitted events. |
 | `delivery-guarantee` | Enum | **Yes** | `NONE`, `AT_LEAST_ONCE`, `EXACTLY_ONCE` | Delivery semantic guarantee. |
 | `transactional-id-prefix` | String | Conditional | String | Transactional prefix. **Mandatory** if `delivery-guarantee` is `EXACTLY_ONCE`, prohibited otherwise. |
-| `properties` | `Map<String, String>` | No | Non-blank keys/values | Custom Kafka producer client settings. |
+| `properties` | `Map<String, String>` | No | Non-blank keys/values | Escape hatch passed to `KafkaSinkBuilder.setKafkaProducerConfig(...)` (e.g. acks, compression, batching). |
 
 ---
 

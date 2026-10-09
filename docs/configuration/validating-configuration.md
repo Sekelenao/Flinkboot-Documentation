@@ -48,7 +48,7 @@ Refer to the official [Jakarta Bean Validation documentation](https://jakarta.ee
 
 ## 2. Validation error reporting
 
-When a constraint is violated, Flinkboot halts application startup with a `ConfigurationValidationException`. The violation path is mapped to kebab-case YAML property names so the developer can immediately locate the offending configuration key.
+When a constraint is violated, Flinkboot halts application startup with a `ConfigurationValidationException`. The violation path lists the model property paths so the developer can immediately locate the offending configuration field.
 
 Example log output:
 
@@ -56,13 +56,13 @@ Example log output:
 io.github.sekelenao.flinkboot.core.api.exception.configuration.ConfigurationValidationException: 
 Configuration validation failed with 2 violation(s):
  - database.port: must be greater than or equal to 1024
- - database.max-connections: must be greater than 0
+ - database.maxConnections: must be greater than 0
 ```
 
 By default, Flinkboot prints up to 10 validation violations before summarizing any remaining errors (`... and X more violation(s)`). You can change this limit using the CLI parameter:
 
 ```bash
---flinkboot-configuration-violations-log-size 25
+-flinkboot-configuration-violations-log-size 25
 ```
 
 ---
