@@ -14,6 +14,11 @@ export function generateLlmsFiles(siteDir: string) {
   const targetRawDir = path.join(siteDir, 'static', 'raw');
   const staticDir = path.join(siteDir, 'static');
 
+  // Purge stale raw directory to avoid lingering removed files
+  if (fs.existsSync(targetRawDir)) {
+    fs.rmSync(targetRawDir, {recursive: true, force: true});
+  }
+
   // Discover all versions
   let versions: string[] = [];
   if (fs.existsSync(versionsFile)) {
