@@ -149,6 +149,47 @@ const config: Config = {
         title: 'LLM Full Documentation',
       },
     },
+    {
+      tagName: 'script',
+      attributes: {
+        type: 'application/ld+json',
+      },
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'WebSite',
+            '@id': 'https://flinkboot.com/#website',
+            'url': 'https://flinkboot.com',
+            'name': 'Flinkboot',
+            'description': 'Faster, safer. The Flink framework.',
+            'inLanguage': 'en',
+          },
+          {
+            '@type': 'SoftwareApplication',
+            '@id': 'https://flinkboot.com/#software',
+            'name': 'Flinkboot',
+            'applicationCategory': 'DeveloperApplication',
+            'operatingSystem': 'Java 11, Java 17, Java 21',
+            'programmingLanguage': {
+              '@type': 'ComputerLanguage',
+              'name': 'Java',
+            },
+            'softwareVersion': '0.5.0-1.20',
+            'url': 'https://flinkboot.com',
+            'downloadUrl': 'https://central.sonatype.com/artifact/io.github.sekelenao/flinkboot-core',
+            'codeRepository': 'https://github.com/Sekelenao/Flinkboot',
+            'license': 'https://www.apache.org/licenses/LICENSE-2.0',
+            'description': 'Bootstrapping and reliability framework for Apache Flink with fail-fast configuration, production connectors, and native zero-Kryo serialization.',
+            'offers': {
+              '@type': 'Offer',
+              'price': '0',
+              'priceCurrency': 'USD',
+            },
+          },
+        ],
+      }),
+    },
   ],
 
   presets: [
