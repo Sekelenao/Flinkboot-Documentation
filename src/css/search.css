@@ -1,0 +1,189 @@
+/**
+ * Offline Search Engine Styling (@easyops-cn/docusaurus-search-local)
+ * - Centered search bar in desktop navbar
+ * - Centered dropdown results modal
+ * - Option A hierarchy (Section/Topic top, Excerpt bottom)
+ * - Flat, clean active state without halos/glows
+ * - Pattern keyword highlight uncolored
+ */
+
+/* ==========================================================================
+   1. Desktop SearchBar Placement & Input Sizing
+   ========================================================================== */
+@media (min-width: 997px) {
+  .navbar__inner {
+    position: relative;
+  }
+
+  [class*='navbarSearchContainer'] {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  [class*='navbarSearchContainer'] .navbar__search-input {
+    width: 280px;
+    height: 36px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    transition: width 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  [class*='navbarSearchContainer'] .navbar__search-input:focus {
+    width: 360px;
+    background-color: rgba(255, 255, 255, 0.09);
+    border-color: var(--ifm-color-primary);
+  }
+
+  /* Centered search results dropdown beneath centered input */
+  html body .navbar [class*='navbarSearchContainer'] [class*='dropdownMenu'],
+  html body [class*='searchBarContainer'] [class*='dropdownMenu'],
+  html body .navbar [class*='navbarSearchContainer'] [class*='dropdownMenu']:hover,
+  html body [class*='searchBarContainer'] [class*='dropdownMenu']:hover,
+  html body [class*='dropdownMenu'],
+  html body [class*='dropdownMenu']:hover {
+    position: absolute !important;
+    top: 100% !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: 640px !important;
+    max-width: 90vw !important;
+    background-color: #1e1f22 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    outline: none !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6) !important;
+    transition: none !important;
+  }
+}
+
+/* Hide clear button in search input */
+[class*='searchClearButton'] {
+  display: none !important;
+}
+
+/* ==========================================================================
+   2. Suggestion Results Layout & Multiline Support
+   ========================================================================== */
+html body .navbar [class*='dropdownMenu'] [class*='suggestion'] {
+  height: auto !important;
+  min-height: 58px !important;
+  padding: 10px 14px !important;
+  border: none !important;
+  border-radius: 6px !important;
+  transition: none !important;
+}
+
+html body .navbar [class*='dropdownMenu'] [class*='hitWrapper'] [class*='hitTitle'] {
+  white-space: normal !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  line-height: 1.45 !important;
+  font-size: 0.92rem !important;
+}
+
+html body .navbar [class*='dropdownMenu'] [class*='hitWrapper'] [class*='hitPath'] {
+  margin-top: 4px !important;
+  font-size: 0.78rem !important;
+  color: var(--ifm-color-emphasis-600) !important;
+}
+
+/* ==========================================================================
+   3. Option A Hierarchy (Content matches: Section/Topic top, Excerpt bottom)
+   ========================================================================== */
+html body .navbar [class*='dropdownMenu'] [class*='suggestion']:has(path[d*='M17 5H3']) [class*='hitWrapper'] {
+  display: flex !important;
+  flex-direction: column-reverse !important;
+}
+
+html body .navbar [class*='dropdownMenu'] [class*='suggestion']:has(path[d*='M17 5H3']) [class*='hitWrapper'] [class*='hitPath'] {
+  font-size: 0.94rem !important;
+  font-weight: 600 !important;
+  color: #f0f6fc !important;
+  margin-top: 0 !important;
+  margin-bottom: 3px !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+}
+
+html body .navbar [class*='dropdownMenu'] [class*='suggestion']:has(path[d*='M17 5H3']) [class*='hitWrapper'] [class*='hitTitle'] {
+  font-size: 0.8rem !important;
+  font-weight: 400 !important;
+  color: var(--ifm-color-emphasis-600) !important;
+  line-height: 1.4 !important;
+}
+
+/* ==========================================================================
+   4. Neutralize Plugin Theme Variables (Remove intrusive default glows)
+   ========================================================================== */
+:root,
+[data-theme='dark'],
+.navbar,
+[class*='dropdownMenu'] {
+  --search-local-highlight-color: transparent !important;
+  --search-local-hit-background: transparent !important;
+  --search-local-hit-shadow: none !important;
+  --search-local-modal-shadow: none !important;
+  --search-local-hit-active-color: var(--ifm-font-color-base) !important;
+}
+
+/* Suggestion items base: transparent background, zero border, zero shadow */
+html body [class*='dropdownMenu'] [class*='suggestion'],
+html body [class*='dropdownMenu'] .suggestion,
+html body .navbar [class*='dropdownMenu'] [class*='suggestion'] {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================================================
+   5. Active State (Hover & Keyboard Selection)
+   ========================================================================== */
+/* Subtle flat gray background, strictly zero border, outline, or glow */
+html body [class*='dropdownMenu'] [class*='suggestion']:hover,
+html body [class*='dropdownMenu'] .suggestion:hover,
+html body [class*='dropdownMenu'] [class*='suggestion'][class*='cursor'],
+html body [class*='dropdownMenu'] [class*='suggestion'].cursor,
+html body [class*='dropdownMenu'] .suggestion.cursor,
+html body .navbar [class*='dropdownMenu'] [class*='suggestion']:hover,
+html body .navbar [class*='dropdownMenu'] [class*='suggestion'][class*='cursor'] {
+  background: rgba(255, 255, 255, 0.06) !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border: none !important;
+  border-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Disable pattern coloration/highlight on matched search terms in results */
+html body [class*='dropdownMenu'] mark,
+html body [class*='searchResultItem'] mark {
+  background: none !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  font-weight: inherit !important;
+  text-decoration: none !important;
+}
+
+/* Subtle icon highlight on hover/cursor without lighting up the rectangular box */
+html body .navbar [class*='dropdownMenu'] [class*='suggestion']:hover [class*='hitIcon'],
+html body .navbar [class*='dropdownMenu'] [class*='suggestion'][class*='cursor'] [class*='hitIcon'] {
+  color: var(--ifm-color-primary) !important;
+}
+
+html body .navbar [class*='dropdownMenu'] [class*='suggestion']:hover [class*='hitTitle'],
+html body .navbar [class*='dropdownMenu'] [class*='suggestion'][class*='cursor'] [class*='hitTitle'] {
+  color: var(--ifm-font-color-base) !important;
+}
+
+html body .navbar [class*='dropdownMenu'] [class*='suggestion']:hover [class*='hitPath'],
+html body .navbar [class*='dropdownMenu'] [class*='suggestion'][class*='cursor'] [class*='hitPath'] {
+  color: #ffffff !important;
+}

@@ -104,6 +104,10 @@
   margin-left: 1.25rem;
 }
 
+/* Offline search styling */
+@import './search.css';
+
+
 /* GitHub navbar icon */
 .header-github-link {
   display: flex;

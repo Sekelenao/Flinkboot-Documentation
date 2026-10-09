@@ -218,7 +218,7 @@ const config: Config = {
           lastmod: 'date',
           changefreq: 'weekly',
           priority: 0.5,
-          ignorePatterns: ['/tags/**'],
+          ignorePatterns: ['/tags/**', '/search'],
           filename: 'sitemap.xml',
         },
       } satisfies Preset.Options,
@@ -226,6 +226,22 @@ const config: Config = {
   ],
 
   plugins: [llmsTxtPlugin],
+
+  themes: [
+    [
+      '@easyops-cn/docusaurus-search-local',
+      {
+        hashed: true,
+        indexBlog: false,
+        indexPages: false,
+        docsRouteBasePath: '/docs',
+        language: ['en'],
+        highlightSearchTermsOnTargetPage: false,
+        explicitSearchResultPath: true,
+        searchResultContextMaxLength: 120,
+      },
+    ],
+  ],
 
   themeConfig: {
     docs: {
