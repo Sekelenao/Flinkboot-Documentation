@@ -43,7 +43,7 @@ Corresponding YAML snippet:
 alerting:
   threshold-amount: 5000.00
   evaluation-window: "PT5M"
-  notification-email: "fraud-ops@company.com"
+  notification-email: "fraud-ops@internal"
 ```
 
 ### Immutable class with Optional getters for optional fields

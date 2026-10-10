@@ -108,7 +108,7 @@ kafka-source:
 
 alerting:
   threshold-amount: 5000.00
-  notification-email: "fraud-alerts@company.com"
+  notification-email: "fraud-alerts@internal"
 ```
 
   </TabItem>
@@ -128,7 +128,7 @@ alerting:
 --kafka.properties.ssl.truststore.password ${KAFKA_TRUSTSTORE_PASSWORD} \
 --kafka.properties.fetch.max.wait.ms 500 \
 --alerting.threshold-amount 5000.00 \
---alerting.notification-email fraud-alerts@company.com
+--alerting.notification-email fraud-alerts@internal
 
 # Fragile CLI parsing, lacks hierarchy, and offers zero validation
 # when a parameter is misspelled or missing at runtime.
