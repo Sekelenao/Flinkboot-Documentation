@@ -1,3 +1,9 @@
+---
+sidebar_position: 1
+title: Compatibility
+description: Supported Apache Flink versions, Java runtime versions, and bytecode targets for Flinkboot.
+---
+
 # Compatibility
 
 Supported Apache Flink and Java versions for Flinkboot.

@@ -19,4 +19,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.quickstartButton {
+  background-color: #3578e5;
+  border-color: #3578e5;
+  color: var(--ifm-font-color-base-inverse, #000000) !important;
+}
+
+.quickstartButton:hover {
+  background-color: #2868d8;
+  border-color: #2868d8;
+  color: var(--ifm-font-color-base-inverse, #000000) !important;
+  text-decoration: none;
 }
