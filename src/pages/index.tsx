@@ -1,4 +1,5 @@
 import type {ReactNode} from 'react';
+import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
@@ -24,6 +25,11 @@ function HomepageHeader() {
           {siteConfig.tagline}
         </p>
         <div className={styles.buttons}>
+          <Link
+            className={clsx('button button--lg', styles.quickstartButton)}
+            to="/quickstart">
+            Quickstart
+          </Link>
           <Link
             className="button button--primary button--lg"
             to="/docs/">

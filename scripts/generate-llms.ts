@@ -9,6 +9,41 @@ interface DocEntry {
   sourceFile: string;
 }
 
+const quickstartMarkdown = `# Quickstart: Alien Eggs Detector
+
+A minimal, zero-boilerplate Apache Flink application powered by Flinkboot.
+
+## Context
+Pipeline flow:
+1. Space Cargo Source (Generates random cargo boxes)
+2. Contraband Filter (Flags dangerous Alien Eggs)
+3. Customs Alert Map (Formats quarantine alerts)
+4. Printing Sink (Prints alerts to terminal)
+5. Live Radar / Web UI (Live graph on localhost:8080)
+
+## Prerequisites
+- Java 11+
+- Maven
+- IntelliJ IDEA
+
+## 1. Clone the project
+\`\`\`bash
+git clone https://github.com/Sekelenao/Flinkboot-Quickstart.git
+cd Flinkboot-Quickstart
+\`\`\`
+
+## 2. IntelliJ IDEA setup
+Flink runtime dependencies are scoped as provided so fat JARs stay lightweight for remote clusters.
+To run locally in IntelliJ IDEA without a ClassNotFoundException, enable provided dependencies on the classpath:
+1. Open Run Configuration: Right-click Main.java > More Run/Debug > Modify Run Configuration...
+2. Access options: In the top-right of the modal, click Modify options (or press Alt + M).
+3. Include provided dependencies: Under Java, check Add dependencies with "provided" scope to classpath.
+4. Launch: Click Apply, then hit the green Run 'Main' button!
+
+## 3. Watch the scanner run live!
+Your pipeline is actively streaming data and inspecting cargo boxes in real time. The output prints directly in your IntelliJ console, and by default, a local Flink Web UI is available at http://localhost:8080.
+`;
+
 export function generateLlmsFiles(siteDir: string) {
   const versionsFile = path.join(siteDir, 'versions.json');
   const targetRawDir = path.join(siteDir, 'static', 'raw');
@@ -18,6 +53,10 @@ export function generateLlmsFiles(siteDir: string) {
   if (fs.existsSync(targetRawDir)) {
     fs.rmSync(targetRawDir, {recursive: true, force: true});
   }
+  fs.mkdirSync(targetRawDir, {recursive: true});
+
+  // Always write quickstart.md raw file
+  fs.writeFileSync(path.join(targetRawDir, 'quickstart.md'), quickstartMarkdown, 'utf8');
 
   // Discover all versions
   let versions: string[] = [];
@@ -90,10 +129,21 @@ export function generateLlmsFiles(siteDir: string) {
       });
     }
 
-    // Sort: intro first, compatibility second, then alphabetically
+    // Add standalone Quickstart page to entries
+    entries.push({
+      title: 'Quickstart',
+      description: 'Alien eggs detector: clone, launch, and inspect a live Apache Flink pipeline powered by Flinkboot in 2 minutes.',
+      permalink: '/quickstart/',
+      rawPath: '/raw/quickstart.md',
+      sourceFile: 'quickstart.md',
+    });
+
+    // Sort: intro first, quickstart second, compatibility third, then alphabetically
     entries.sort((a, b) => {
       if (a.sourceFile === 'intro.md') return -1;
       if (b.sourceFile === 'intro.md') return 1;
+      if (a.sourceFile === 'quickstart.md') return -1;
+      if (b.sourceFile === 'quickstart.md') return 1;
       if (a.sourceFile === 'compatibility.md') return -1;
       if (b.sourceFile === 'compatibility.md') return 1;
       return a.permalink.localeCompare(b.permalink);
@@ -124,6 +174,7 @@ export function generateLlmsFiles(siteDir: string) {
 - Version: ${v}
 - Website: https://flinkboot.com
 - GitHub: https://github.com/Sekelenao/Flinkboot
+- Quickstart: https://flinkboot.com/quickstart/
 - Complete Documentation for ${v} in one file: https://flinkboot.com/llms-${v}-full.txt
 
 ## Guides & Documentation (Version ${v})
@@ -144,9 +195,14 @@ export function generateLlmsFiles(siteDir: string) {
 
 `;
     for (const doc of versionDocEntries) {
-      const filePath = path.join(vDir, doc.sourceFile);
-      let content = fs.readFileSync(filePath, 'utf8');
-      content = content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
+      let content = '';
+      if (doc.sourceFile === 'quickstart.md') {
+        content = quickstartMarkdown;
+      } else {
+        const filePath = path.join(vDir, doc.sourceFile);
+        content = fs.readFileSync(filePath, 'utf8');
+        content = content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
+      }
 
       vLlmsFullTxt += `\n\n================================================================================\n`;
       vLlmsFullTxt += `DOCUMENT: ${doc.title} (${doc.permalink})\n`;
@@ -182,6 +238,7 @@ export function generateLlmsFiles(siteDir: string) {
 
 - Website: https://flinkboot.com
 - GitHub: https://github.com/Sekelenao/Flinkboot
+- Quickstart: https://flinkboot.com/quickstart/
 - Maven Central: https://central.sonatype.com/artifact/io.github.sekelenao/flinkboot-core
 - Complete Documentation (Latest) in one file: https://flinkboot.com/llms-full.txt
 

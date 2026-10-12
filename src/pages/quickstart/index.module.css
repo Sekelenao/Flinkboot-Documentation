@@ -1,0 +1,195 @@
+.pageContainer {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 6rem;
+}
+
+/* Main Page Title */
+.mainTitle {
+  font-size: 2.75rem;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  text-align: center;
+  color: var(--ifm-color-primary, #25c2a0);
+  margin-bottom: 1.5rem;
+}
+
+/* Centered Section Headings */
+.centeredTitle {
+  font-size: 2.1rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+/* Emoji pipeline flow vignettes */
+.pipelineFlow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.flowItem {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 1.1rem 0.5rem;
+  text-align: center;
+}
+
+.flowIcon {
+  font-size: 1.85rem;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.flowName {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #f1f5f9;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.flowDetail {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+/* Prerequisites vignettes (centered) */
+.prereqGrid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.prereqItem {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 1rem 1.75rem;
+  text-align: center;
+  min-width: 130px;
+}
+
+.prereqIcon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.prereqName {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #f1f5f9;
+}
+
+/* Content Sections */
+.section {
+  margin-bottom: 4rem;
+}
+
+.sectionTitle {
+  font-size: 1.85rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.sectionIntro {
+  font-size: 1.08rem;
+  color: #94a3b8;
+  line-height: 1.65;
+  margin: 0 0 1.5rem;
+}
+
+/* Sequential steps (vertical stack) */
+.stepSequence {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+  margin-top: 2rem;
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.stepPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: #3578e5;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.stepHeading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.stepExplanation {
+  color: #94a3b8;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  margin: 0 0 1.25rem;
+}
+
+.stepImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #111215;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+
+
+@media screen and (max-width: 820px) {
+  .pipelineFlow {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .mainTitle {
+    font-size: 2.2rem;
+  }
+  .centeredTitle {
+    font-size: 1.75rem;
+  }
+  .pageContainer {
+    padding: 2.5rem 1rem 4rem;
+  }
+  .pipelineFlow {
+    grid-template-columns: 1fr;
+  }
+  .prereqGrid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

@@ -285,6 +285,11 @@ const config: Config = {
           label: 'Documentation',
         },
         {
+          to: '/quickstart',
+          label: 'Quickstart',
+          position: 'left',
+        },
+        {
           href: 'https://github.com/Sekelenao/Flinkboot/blob/main/CHANGELOG.md',
           label: 'Changelog',
           position: 'right',
