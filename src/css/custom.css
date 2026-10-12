@@ -290,6 +290,19 @@ details.overview-section .overview-body {
   color: #6aab73 !important;
 }
 
+/* Discreet footer copyright links */
+.footer__copyright a {
+  color: #94a3b8;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.footer__copyright a:hover {
+  color: var(--ifm-color-primary, #25c2a0);
+}
+
+
 
 
 

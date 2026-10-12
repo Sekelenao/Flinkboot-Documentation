@@ -304,7 +304,7 @@ const config: Config = {
     },
     footer: {
       links: [],
-      copyright: 'Copyright © 2026 Flinkboot. Released under the Apache 2.0 License.',
+      copyright: 'Copyright © 2026 Flinkboot. Released under the Apache 2.0 License &bull; <a href="/legal">Legal Notice</a> &bull; <a href="/privacy">Privacy Policy</a>',
     },
     prism: {
       theme: javaDarkTheme,
