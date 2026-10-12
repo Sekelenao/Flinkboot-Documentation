@@ -1,3 +1,9 @@
+---
+sidebar_position: 2
+title: Installation
+description: Configure Maven with the Flinkboot BOM, declare dependencies, and set up shaded Jackson relocations.
+---
+
 # Installation
 
 Learn how to configure your Maven `pom.xml` with the Flinkboot Bill of Materials (BOM), declare required modules, and package a production-ready Fat JAR.
