@@ -16,6 +16,18 @@ export default function Quickstart(): ReactNode {
           <Heading as="h1" className={styles.mainTitle}>
             Quickstart
           </Heading>
+          <p className={styles.pageSubtitle}>
+            Clone, launch, and inspect a live Apache Flink pipeline in under 2 minutes.
+          </p>
+
+          <div className={styles.prereqBar}>
+            <span className={styles.prereqLabel}>Prerequisites:</span>
+            <div className={styles.prereqBadges}>
+              <span className={styles.prereqBadge}>☕ Java 11+</span>
+              <span className={styles.prereqBadge}>🛠️ Maven</span>
+              <span className={styles.prereqBadge}>💻 IntelliJ IDEA</span>
+            </div>
+          </div>
 
           <div className={styles.pipelineFlow}>
             <div className={styles.flowItem}>
@@ -42,28 +54,6 @@ export default function Quickstart(): ReactNode {
               <span className={styles.flowIcon}>🖥️</span>
               <span className={styles.flowName}>Live Radar (Web UI)</span>
               <span className={styles.flowDetail}>Live graph on localhost:8080</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Prerequisites */}
-        <section className={styles.section}>
-          <Heading as="h2" className={styles.centeredTitle}>
-            Prerequisites
-          </Heading>
-
-          <div className={styles.prereqGrid}>
-            <div className={styles.prereqItem}>
-              <span className={styles.prereqIcon}>☕</span>
-              <span className={styles.prereqName}>Java 11+</span>
-            </div>
-            <div className={styles.prereqItem}>
-              <span className={styles.prereqIcon}>🪶</span>
-              <span className={styles.prereqName}>Maven</span>
-            </div>
-            <div className={styles.prereqItem}>
-              <span className={styles.prereqIcon}>💻</span>
-              <span className={styles.prereqName}>IntelliJ IDEA</span>
             </div>
           </div>
         </section>
@@ -167,7 +157,11 @@ cd Flinkboot-Quickstart`}
           </Heading>
           <p className={styles.sectionIntro}>
             Your pipeline is actively streaming data and inspecting cargo boxes in real time. The output prints directly in your IntelliJ console, and by default, a local Flink Web UI is available at{' '}
-            <a href="http://localhost:8080" target="_blank" rel="noopener noreferrer">
+            <a
+              href="http://localhost:8080"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.link}>
               http://localhost:8080
             </a>.
           </p>
