@@ -1,7 +1,7 @@
 User-agent: *
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Disallow: /search
 Disallow: /cdn-cgi/
 Allow: /
-Content-Signal: ai-train=yes, search=yes, ai-input=yes
 
 Sitemap: https://flinkboot.com/sitemap.xml
