@@ -19,9 +19,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# IDEs
+# IDEs and local tooling
 .idea/
 .vscode/
+.wrangler/
 
 # Generated LLM and raw markdown artifacts (built dynamically)
 /static/raw/
