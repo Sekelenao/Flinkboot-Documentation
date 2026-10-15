@@ -21,8 +21,11 @@ function HomepageHeader() {
         <Heading as="h1" className="hero__title">
           {siteConfig.title}
         </Heading>
-        <p className="hero__subtitle" style={{maxWidth: '780px', margin: '0 auto 2rem'}}>
+        <p className={styles.tagline}>
           {siteConfig.tagline}
+        </p>
+        <p className={styles.description}>
+          A lightweight Java framework for Apache Flink: type-safe YAML configuration, fail-fast validation, and zero boilerplate.
         </p>
         <div className={styles.buttons}>
           <Link

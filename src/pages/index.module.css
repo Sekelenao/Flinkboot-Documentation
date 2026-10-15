@@ -9,9 +9,34 @@
   background-color: transparent;
 }
 
+.tagline {
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: var(--ifm-heading-color, #ffffff);
+  max-width: 780px;
+  margin: 0 auto 0.75rem;
+  line-height: 1.4;
+}
+
+.description {
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: #94a3b8;
+  max-width: 680px;
+  margin: 0 auto 2.25rem;
+}
+
 @media screen and (max-width: 996px) {
   .heroBanner {
     padding: 3rem 1rem;
+  }
+
+  .tagline {
+    font-size: 1.3rem;
+  }
+
+  .description {
+    font-size: 1.05rem;
   }
 }
 
