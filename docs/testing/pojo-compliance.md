@@ -33,7 +33,7 @@ Use `FlinkbootAssertions.assertThat(Class<?> type).isPojo()` to verify your mode
 ```java
 import org.junit.jupiter.api.Test;
 
-import static io.github.sekelenao.flinkboot.test.api.assertion.FlinkbootAssertions.assertThat;
+import static com.flinkboot.test.api.assertion.FlinkbootAssertions.assertThat;
 
 class ModelComplianceTest {
 
@@ -58,7 +58,7 @@ import org.apache.flink.api.common.typeinfo.TypeHint;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.sekelenao.flinkboot.test.api.assertion.FlinkbootAssertions.assertThat;
+import static com.flinkboot.test.api.assertion.FlinkbootAssertions.assertThat;
 
 class ModelComplianceTest {
 
@@ -82,7 +82,7 @@ When a type description already exists (produced by a custom `TypeInfoFactory`, 
 ```java
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 
-import static io.github.sekelenao.flinkboot.test.api.assertion.FlinkbootAssertions.assertThat;
+import static com.flinkboot.test.api.assertion.FlinkbootAssertions.assertThat;
 
 class ModelComplianceTest {
 

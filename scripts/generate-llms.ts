@@ -239,7 +239,7 @@ export function generateLlmsFiles(siteDir: string) {
 - Website: https://flinkboot.com
 - GitHub: https://github.com/Sekelenao/Flinkboot
 - Quickstart: https://flinkboot.com/quickstart/
-- Maven Central: https://central.sonatype.com/artifact/io.github.sekelenao/flinkboot-core
+- Maven Central: https://central.sonatype.com/artifact/com.flinkboot/flinkboot-core
 - Complete Documentation (Latest) in one file: https://flinkboot.com/llms-full.txt
 
 ## Available Versions

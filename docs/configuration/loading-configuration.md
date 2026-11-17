@@ -10,7 +10,7 @@ In real-world Apache Flink applications, pipelines require custom business param
 
 Under the hood, configuration deserialization is powered by [Jackson](https://github.com/FasterXML/jackson). Standard Java types, collections, and Java temporal types are supported out of the box through Jackson's Java Time module.
 
-YAML keys map to Java fields using Jackson's `@JsonProperty("key-name")` annotation. Property names are matched case-insensitively.
+Flinkboot configures `PropertyNamingStrategies.KEBAB_CASE` by default, so camelCase Java fields automatically map to kebab-case YAML keys without manual `@JsonProperty` annotations. If a model requires a custom key name, you can still override it with `@JsonProperty("customKey")`.
 
 ---
 
@@ -23,7 +23,6 @@ For models where all fields are required and you are running on Java 17+, standa
 ```java
 package com.company.fraud.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -31,9 +30,9 @@ import java.io.Serializable;
 import java.time.Duration;
 
 public record AlertingProperties(
-    @NotNull @Positive @JsonProperty("threshold-amount") Double thresholdAmount,
-    @NotNull @JsonProperty("evaluation-window") Duration evaluationWindow,
-    @NotBlank @JsonProperty("notification-email") String notificationEmail
+    @NotNull @Positive Double thresholdAmount,
+    @NotNull Duration evaluationWindow,
+    @NotBlank String notificationEmail
 ) implements Serializable {}
 ```
 
@@ -95,10 +94,11 @@ server:
 
 ## 2. Customizing Jackson YAML deserialization
 
-If your domain models require custom Jackson configuration or third-party modules, supply a builder customizer lambda when loading the configuration:
+If your domain models require custom Jackson configuration (such as reverting to camelCase property naming) or third-party modules, supply a builder customizer lambda when loading the configuration:
 
 ```java
 AppConfig config = boot.configuration(AppConfig.class, builder -> {
+    builder.propertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE);
     builder.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
     builder.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
 });
@@ -168,7 +168,7 @@ Supported URI schemes include `classpath:<path>`, `resource:<path>`, and `file:<
 
 ### Merging multiple configuration files
 
-When loading multiple files sequentially, Flinkboot enforces strict collision rules by default to prevent accidental configuration overwrites:
+When loading multiple files sequentially (or multiple YAML documents separated by `---` within a single file), Flinkboot enforces strict collision rules by default to prevent accidental configuration overwrites:
 
 * **Scalar Overrides (`--flinkboot-configuration-override`):**  
   By default (`false`), redefining an already existing key across files halts startup immediately with a `YamlParsingException`. To intentionally allow later files to overwrite earlier scalar values (e.g. environment-specific overrides over a base template), enable:

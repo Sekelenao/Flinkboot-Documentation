@@ -30,12 +30,12 @@ Flinkboot provides built-in, optimized `TypeInfoFactory` classes to enable nativ
 Annotate your POJO fields with Flink's `@TypeInfo` annotation:
 
 ```java
-import io.github.sekelenao.flinkboot.core.api.typing.collection.ListTypeInfoFactory;
-import io.github.sekelenao.flinkboot.core.api.typing.collection.MapTypeInfoFactory;
-import io.github.sekelenao.flinkboot.core.api.typing.time.DurationTypeInfoFactory;
-import io.github.sekelenao.flinkboot.core.api.typing.time.LocalDateTypeInfoFactory;
-import io.github.sekelenao.flinkboot.core.api.typing.time.LocalDateTimeTypeInfoFactory;
-import io.github.sekelenao.flinkboot.core.api.typing.time.LocalTimeTypeInfoFactory;
+import com.flinkboot.core.api.typing.collection.ListTypeInfoFactory;
+import com.flinkboot.core.api.typing.collection.MapTypeInfoFactory;
+import com.flinkboot.core.api.typing.time.DurationTypeInfoFactory;
+import com.flinkboot.core.api.typing.time.LocalDateTypeInfoFactory;
+import com.flinkboot.core.api.typing.time.LocalDateTimeTypeInfoFactory;
+import com.flinkboot.core.api.typing.time.LocalTimeTypeInfoFactory;
 import org.apache.flink.api.common.typeinfo.TypeInfo;
 
 import java.time.Duration;

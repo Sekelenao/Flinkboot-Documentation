@@ -63,6 +63,14 @@ const sidebars: SidebarsConfig = {
         {type: 'doc', id: 'good-practices/configuration-serialization-for-operators', label: 'Configuration serialization for operators'},
       ],
     },
+    {
+      type: 'category',
+      label: 'Migration',
+      collapsed: true,
+      items: [
+        {type: 'doc', id: 'migration/migrating-to-0.6.0', label: '0.5.0 → 0.6.0'},
+      ],
+    },
   ],
 };
 

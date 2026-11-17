@@ -15,8 +15,10 @@ Testing streaming topologies often requires asserting on the actual data element
 `CollectingSink<T>` is an in-memory, thread-safe Flink sink designed specifically for testing:
 * `new CollectingSink<T>()`: Creates a new sink instance.
 * `sink.elements()`: Returns an immutable snapshot list of all collected elements.
+* `sink.size()` / `sink.isEmpty()`: Direct zero-copy accessors for element count and emptiness.
 * `sink.clear()`: Empties the internal buffer for subsequent test runs.
 * `AutoCloseable`: Implements `AutoCloseable` for automatic buffer cleanup via `try-with-resources`.
+* `FlinkbootAssertions.assertThat(sink)`: Fluent `CollectingSinkAssert<T>` assertions (`.hasSize(...)`, `.isEmpty()`, `.isNotEmpty()`, `.contains(...)`, `.anyMatch(...)`, `.allMatch(...)`, `.noneMatch(...)`).
 
 The sink safely collects elements emitted across parallel sink subtasks during local Flink MiniCluster test execution.
 
@@ -27,15 +29,11 @@ The sink safely collects elements emitted across parallel sink subtasks during l
 Attach `CollectingSink` to your stream with `.sinkTo(sink)`, execute the pipeline, and assert on the collected elements:
 
 ```java
-import io.github.sekelenao.flinkboot.test.api.sink.CollectingSink;
+import com.flinkboot.test.api.sink.CollectingSink;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.flinkboot.test.api.assertion.FlinkbootAssertions.assertThat;
 
 class StreamPipelineTest {
 
@@ -50,12 +48,9 @@ class StreamPipelineTest {
 
             env.execute();
 
-            List<String> elements = sink.elements();
-
-            assertAll(
-                () -> assertEquals(2, elements.size()),
-                () -> assertTrue(elements.containsAll(List.of("event-1", "event-2")))
-            );
+            assertThat(sink)
+                .hasSize(2)
+                .contains("event-1", "event-2");
         }
     }
 }

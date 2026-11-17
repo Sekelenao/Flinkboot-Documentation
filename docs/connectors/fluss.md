@@ -17,7 +17,7 @@ Add `flinkboot-fluss` to your `pom.xml`. Versions are managed automatically by t
 ```xml
 <dependencies>
     <dependency>
-        <groupId>io.github.sekelenao</groupId>
+        <groupId>com.flinkboot</groupId>
         <artifactId>flinkboot-fluss</artifactId>
     </dependency>
 </dependencies>
@@ -69,7 +69,7 @@ fluss-source:
 | `table` | String | **Yes** | `@NotBlank` | Target Fluss table. |
 | `startup-mode` | Enum | **Yes** | `@NotNull` | Startup strategy: `EARLIEST`, `LATEST`, `FULL`, `TIMESTAMP`. |
 | `startup-timestamp` | Long | Conditional | `@PositiveOrZero` | Epoch millisecond timestamp (**mandatory** if `startup-mode: TIMESTAMP`, forbidden otherwise). |
-| `properties` | `Map<String, String>` | No | Non-blank keys/values | Escape hatch passed to `FlussSourceBuilder.setFlussConfig(...)` (e.g. SASL security, fetch sizes). |
+| `properties` | `Map<@NotBlank String, @NotNull String>` | No | Non-blank keys, non-null values | Escape hatch passed to `FlussSourceBuilder.setFlussConfig(...)` (e.g. SASL security, fetch sizes). |
 
 ---
 
@@ -99,7 +99,7 @@ fluss-sink:
 | `bootstrap-servers` | `List<String>` | **Yes** | `@NotEmpty`, items `@NotBlank` | Addresses of Fluss coordinators. |
 | `database` | String | **Yes** | `@NotBlank` | Target Fluss database. |
 | `table` | String | **Yes** | `@NotBlank` | Target Fluss table. |
-| `properties` | `Map<String, String>` | No | Non-blank keys/values | Escape hatch passed to `FlussSinkBuilder.setOptions(...)` (e.g. batch size, timeout, acks). |
+| `properties` | `Map<@NotBlank String, @NotNull String>` | No | Non-blank keys, non-null values | Escape hatch passed to `FlussSinkBuilder.setOptions(...)` (e.g. batch size, timeout, acks). |
 
 ---
 
@@ -110,18 +110,17 @@ Combine `FlussSourceProperties` and `FlussSinkProperties` in your configuration 
 ```java
 package com.company.analytics.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.sekelenao.flinkboot.core.api.properties.JobProperties;
-import io.github.sekelenao.flinkboot.fluss.api.properties.sink.FlussSinkProperties;
-import io.github.sekelenao.flinkboot.fluss.api.properties.source.FlussSourceProperties;
+import com.flinkboot.core.api.properties.JobProperties;
+import com.flinkboot.fluss.api.properties.sink.FlussSinkProperties;
+import com.flinkboot.fluss.api.properties.source.FlussSourceProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public record AppConfig(
-    @Valid @NotNull @JsonProperty("job") JobProperties job,
-    @Valid @NotNull @JsonProperty("fluss-source") FlussSourceProperties flussSource,
-    @Valid @NotNull @JsonProperty("fluss-sink") FlussSinkProperties flussSink
+    @Valid @NotNull JobProperties job,
+    @Valid @NotNull FlussSourceProperties flussSource,
+    @Valid @NotNull FlussSinkProperties flussSink
 ) implements Serializable {}
 ```
 
@@ -131,9 +130,9 @@ In your main entrypoint:
 package com.company.analytics;
 
 import com.company.analytics.config.AppConfig;
-import io.github.sekelenao.flinkboot.core.api.Flinkboot;
-import io.github.sekelenao.flinkboot.fluss.api.sink.FlussSinkFactory;
-import io.github.sekelenao.flinkboot.fluss.api.source.FlussSourceFactory;
+import com.flinkboot.core.api.Flinkboot;
+import com.flinkboot.fluss.api.sink.FlussSinkFactory;
+import com.flinkboot.fluss.api.source.FlussSourceFactory;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

@@ -15,7 +15,7 @@ Streaming applications frequently need to load side-inputs, reference datasets, 
 The `Resource` contract allows reading content via an `InputStream` without managing manual URL or file descriptors:
 
 ```java
-import io.github.sekelenao.flinkboot.core.api.resource.Resource;
+import com.flinkboot.core.api.resource.Resource;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 

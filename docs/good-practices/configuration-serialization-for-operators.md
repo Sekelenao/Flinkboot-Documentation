@@ -34,8 +34,8 @@ All configuration loading features remain available in tests: you can specify cu
 Once initialized, verify that the configuration instance passes the serialization round-trip using `FlinkbootAssertions.assertThat(...).isSerializable()`:
 
 ```java
-import io.github.sekelenao.flinkboot.core.api.Flinkboot;
-import io.github.sekelenao.flinkboot.test.api.assertion.FlinkbootAssertions;
+import com.flinkboot.core.api.Flinkboot;
+import com.flinkboot.test.api.assertion.FlinkbootAssertions;
 import org.junit.jupiter.api.Test;
 
 class JobConfigurationTest {

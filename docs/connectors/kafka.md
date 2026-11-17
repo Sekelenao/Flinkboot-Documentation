@@ -17,7 +17,7 @@ Add `flinkboot-kafka` to your `pom.xml`. Versions are managed automatically by t
 ```xml
 <dependencies>
     <dependency>
-        <groupId>io.github.sekelenao</groupId>
+        <groupId>com.flinkboot</groupId>
         <artifactId>flinkboot-kafka</artifactId>
     </dependency>
 </dependencies>
@@ -29,7 +29,7 @@ Add `flinkboot-kafka` to your `pom.xml`. Versions are managed automatically by t
 
 ### YAML configuration
 
-You can configure subscriptions using either an explicit topic list or a regex pattern:
+You can configure subscriptions using an explicit topic list, a regex pattern, or explicit topic partitions (`partitions`):
 
 ```yaml
 kafka-source:
@@ -37,6 +37,7 @@ kafka-source:
   bootstrap-servers:
     - "localhost:9092"
   group-id: "order-consumers"
+  client-id-prefix: "orders-reader"
   topics:
     - "orders"
     - "payments"
@@ -76,23 +77,27 @@ kafka-source:
 |:---|:---|:---|:---|:---|
 | `name` | String | **Yes** | `@NotBlank` | Operator name registered in the Flink DAG graph. |
 | `bootstrap-servers` | `List<String>` | **Yes** | `@NotEmpty`, items `@NotBlank` | Kafka bootstrap broker hosts and ports. |
-| `group-id` | String | **Yes** | `@NotBlank` | Consumer group ID. |
-| `topics` | `List<String>` | Conditional | items `@NotBlank` | Explicit topic subscriptions (mutually exclusive with `topic-pattern`). |
-| `topic-pattern` | String | Conditional | Valid regex | Topic subscription regex pattern (mutually exclusive with `topics`). |
+| `group-id` | String | Conditional | Non-blank `@Pattern` | Optional consumer group ID. **Mandatory** when `starting-offsets` or `stopping-offsets` uses a `COMMITTED*` strategy (`COMMITTED`, `COMMITTED_EARLIEST`, `COMMITTED_LATEST`). |
+| `client-id-prefix` | String | No | Non-blank `@Pattern` | Prefix for unique Kafka client IDs across parallel source subtasks (`KafkaSourceBuilder.setClientIdPrefix`). |
+| `topics` | `List<String>` | Conditional | items `@NotBlank` | Explicit topic subscriptions (mutually exclusive with `topic-pattern` and `partitions`). |
+| `topic-pattern` | String | Conditional | Non-blank `@Pattern`, valid regex | Topic subscription regex pattern (mutually exclusive with `topics` and `partitions`). |
+| `partitions` | `List<TopicPartitionProperties>` | Conditional | items `@NotNull @Valid` (`topic`, `partition`) | Explicit topic-partition subscriptions (mutually exclusive with `topics` and `topic-pattern`), wired to `KafkaSourceBuilder.setPartitions`. |
 | `starting-offsets` | `KafkaOffsetProperties` | **Yes** | `@NotNull @Valid` | Offset strategy used on startup. |
 | `boundedness` | Enum | No | Enum | `UNBOUNDED` (default) or `BOUNDED`. |
 | `stopping-offsets` | `KafkaOffsetProperties` | Conditional | `@Valid` | Stopping offset position. **Mandatory** when `boundedness` is `BOUNDED`. |
-| `properties` | `Map<String, String>` | No | Non-blank keys/values | Escape hatch passed to `KafkaSourceBuilder.setProperties(...)` (e.g. SSL, SASL, timeouts). |
+| `properties` | `Map<@NotBlank String, @NotNull String>` | No | Non-blank keys, non-null values | Escape hatch passed to `KafkaSourceBuilder.setProperties(...)` (e.g. SSL, SASL, timeouts). Applied last so properties override typed defaults. |
 
 ### Offset positioning (`starting-offsets` / `stopping-offsets`)
 
 | Strategy | Required Parameters | Prohibited Parameters | Description |
 |:---|:---|:---|:---|
-| `EARLIEST` | None | `timestamp`, `partitions` | Start from earliest available log offsets. |
-| `LATEST` | None | `timestamp`, `partitions` | Start from latest log offsets. |
-| `COMMITTED` | None | `timestamp`, `partitions` | Start from consumer group committed offsets. |
-| `TIMESTAMP` | `timestamp` (`Long`) | `partitions` | Position based on record epoch millisecond timestamps. |
-| `OFFSETS` | `partitions` (`Map<Integer, Long>`) | `timestamp` | Explicit mapping of partition indices to exact offsets. |
+| `EARLIEST` | None | `timestamp`, `partitions`, `reset-strategy` | Start from earliest available log offsets. |
+| `LATEST` | None | `timestamp`, `partitions`, `reset-strategy` | Start from latest log offsets. |
+| `COMMITTED` | None | `timestamp`, `partitions`, `reset-strategy` | Start from consumer group committed offsets. |
+| `COMMITTED_EARLIEST` | None | `timestamp`, `partitions`, `reset-strategy` | Start from committed offsets, falling back to earliest if none are committed. |
+| `COMMITTED_LATEST` | None | `timestamp`, `partitions`, `reset-strategy` | Start from committed offsets, falling back to latest if none are committed. |
+| `TIMESTAMP` | `timestamp` (`Long`, `@PositiveOrZero`) | `partitions`, `reset-strategy` | Position based on record epoch millisecond timestamps. |
+| `OFFSETS` | `partitions` (`List<TopicPartitionOffsetProperties>`), `reset-strategy` (`EARLIEST \| LATEST \| NONE`) | `timestamp` | Explicit mapping of `(topic, partition, offset)` entries with a reset strategy for unmapped partitions. Duplicate `(topic, partition)` entries fail fast. |
 
 ---
 
@@ -124,7 +129,7 @@ kafka-sink:
 | `topic` | String | **Yes** | `@NotBlank` | Target Kafka topic for emitted events. |
 | `delivery-guarantee` | Enum | **Yes** | `NONE`, `AT_LEAST_ONCE`, `EXACTLY_ONCE` | Delivery semantic guarantee. |
 | `transactional-id-prefix` | String | Conditional | String | Transactional prefix. **Mandatory** if `delivery-guarantee` is `EXACTLY_ONCE`, prohibited otherwise. |
-| `properties` | `Map<String, String>` | No | Non-blank keys/values | Escape hatch passed to `KafkaSinkBuilder.setKafkaProducerConfig(...)` (e.g. acks, compression, batching). |
+| `properties` | `Map<@NotBlank String, @NotNull String>` | No | Non-blank keys, non-null values | Escape hatch passed to `KafkaSinkBuilder.setKafkaProducerConfig(...)` (e.g. acks, compression, batching). Applied last so properties override typed defaults. |
 
 ---
 
@@ -135,18 +140,17 @@ Combine `KafkaSourceProperties` and `KafkaSinkProperties` in your configuration 
 ```java
 package com.company.fraud.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.sekelenao.flinkboot.core.api.properties.JobProperties;
-import io.github.sekelenao.flinkboot.kafka.api.properties.sink.KafkaSinkProperties;
-import io.github.sekelenao.flinkboot.kafka.api.properties.source.KafkaSourceProperties;
+import com.flinkboot.core.api.properties.JobProperties;
+import com.flinkboot.kafka.api.properties.sink.KafkaSinkProperties;
+import com.flinkboot.kafka.api.properties.source.KafkaSourceProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public record AppConfig(
-    @Valid @NotNull @JsonProperty("job") JobProperties job,
-    @Valid @NotNull @JsonProperty("kafka-source") KafkaSourceProperties kafkaSource,
-    @Valid @NotNull @JsonProperty("kafka-sink") KafkaSinkProperties kafkaSink
+    @Valid @NotNull JobProperties job,
+    @Valid @NotNull KafkaSourceProperties kafkaSource,
+    @Valid @NotNull KafkaSinkProperties kafkaSink
 ) implements Serializable {}
 ```
 
@@ -156,15 +160,13 @@ In your main entrypoint:
 package com.company.fraud;
 
 import com.company.fraud.config.AppConfig;
-import io.github.sekelenao.flinkboot.core.api.Flinkboot;
-import io.github.sekelenao.flinkboot.kafka.api.sink.KafkaSinkFactory;
-import io.github.sekelenao.flinkboot.kafka.api.source.KafkaSourceFactory;
+import com.flinkboot.core.api.Flinkboot;
+import com.flinkboot.kafka.api.sink.KafkaSinkFactory;
+import com.flinkboot.kafka.api.source.KafkaSourceFactory;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 public class FraudDetectionJob {
@@ -173,19 +175,16 @@ public class FraudDetectionJob {
         AppConfig config = boot.configuration(AppConfig.class);
         StreamExecutionEnvironment env = boot.executionEnvironment(config.job());
 
-        // 1. Build Kafka Source
+        // 1. Build Kafka Source (accepts DeserializationSchema<T> or KafkaRecordDeserializationSchema<T>)
         KafkaSource<String> source = KafkaSourceFactory.supplyFor(
             config.kafkaSource(),
-            KafkaRecordDeserializationSchema.valueOnly(new SimpleStringSchema())
+            new SimpleStringSchema()
         );
 
-        // 2. Build Kafka Sink
+        // 2. Build Kafka Sink (accepts SerializationSchema<T>, customizer lambda, or KafkaRecordSerializationSchema<T>)
         KafkaSink<String> sink = KafkaSinkFactory.supplyFor(
             config.kafkaSink(),
-            KafkaRecordSerializationSchema.builder()
-                .setTopic(config.kafkaSink().topic())
-                .setValueSerializationSchema(new SimpleStringSchema())
-                .build()
+            new SimpleStringSchema()
         );
 
         // 3. Connect stream pipeline

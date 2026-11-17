@@ -37,7 +37,7 @@ Pass any object instance directly to `assertThat(actual).isSerializable()`:
 ```java
 import org.junit.jupiter.api.Test;
 
-import static io.github.sekelenao.flinkboot.test.api.assertion.FlinkbootAssertions.assertThat;
+import static com.flinkboot.test.api.assertion.FlinkbootAssertions.assertThat;
 
 class SerializationComplianceTest {
 

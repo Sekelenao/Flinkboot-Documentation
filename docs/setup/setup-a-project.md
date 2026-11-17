@@ -18,9 +18,9 @@ Add the Flinkboot Bill of Materials (BOM) to your project's `<dependencyManageme
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>io.github.sekelenao</groupId>
+            <groupId>com.flinkboot</groupId>
             <artifactId>flinkboot</artifactId>
-            <version>0.5.0-1.20</version>
+            <version>0.6.0-1.20</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -38,19 +38,19 @@ Add the Flinkboot modules you need to your `<dependencies>` section without spec
 <dependencies>
     <!-- Core API & declarative bootstrapping -->
     <dependency>
-        <groupId>io.github.sekelenao</groupId>
+        <groupId>com.flinkboot</groupId>
         <artifactId>flinkboot-core</artifactId>
     </dependency>
 
     <!-- Optional connectors -->
     <dependency>
-        <groupId>io.github.sekelenao</groupId>
+        <groupId>com.flinkboot</groupId>
         <artifactId>flinkboot-kafka</artifactId>
     </dependency>
 
     <!-- Testing utilities (automatically scoped as test) -->
     <dependency>
-        <groupId>io.github.sekelenao</groupId>
+        <groupId>com.flinkboot</groupId>
         <artifactId>flinkboot-test</artifactId>
     </dependency>
 
@@ -101,7 +101,7 @@ Because Flink ships its own internal version of Jackson, relocate Jackson classe
                         <relocations>
                             <relocation>
                                 <pattern>com.fasterxml</pattern>
-                                <shadedPattern>io.github.sekelenao.flinkboot.shaded.fasterxml</shadedPattern>
+                                <shadedPattern>com.flinkboot.shaded.fasterxml</shadedPattern>
                             </relocation>
                         </relocations>
                         

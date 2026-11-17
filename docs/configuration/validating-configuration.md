@@ -19,7 +19,6 @@ You can apply any constraint from the `jakarta.validation.constraints` package, 
 ```java
 package com.company.fraud.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -28,9 +27,9 @@ import jakarta.validation.constraints.Positive;
 import java.io.Serializable;
 
 public record DatabaseProperties(
-    @NotBlank @JsonProperty("host") String host,
-    @Min(1024) @Max(65535) @JsonProperty("port") int port,
-    @NotNull @Positive @JsonProperty("max-connections") Integer maxConnections
+    @NotBlank String host,
+    @Min(1024) @Max(65535) int port,
+    @NotNull @Positive Integer maxConnections
 ) implements Serializable {}
 ```
 
@@ -38,7 +37,7 @@ For nested models, remember to place `@Valid` on the parent field so that Jakart
 
 ```java
 public record AppConfig(
-    @Valid @NotNull @JsonProperty("database") DatabaseProperties database
+    @Valid @NotNull DatabaseProperties database
 ) implements Serializable {}
 ```
 
@@ -48,15 +47,15 @@ Refer to the official [Jakarta Bean Validation documentation](https://jakarta.ee
 
 ## 2. Validation error reporting
 
-When a constraint is violated, Flinkboot halts application startup with a `ConfigurationValidationException`. The violation path lists the model property paths so the developer can immediately locate the offending configuration field.
+When a constraint is violated, Flinkboot halts application startup with a `ConfigurationValidationException`. Violation paths are reported using canonical YAML kebab-case keys so the developer can immediately locate the offending configuration field.
 
 Example log output:
 
 ```text
-io.github.sekelenao.flinkboot.core.api.exception.configuration.ConfigurationValidationException: 
+com.flinkboot.core.api.exception.configuration.ConfigurationValidationException: 
 Configuration validation failed with 2 violation(s):
  - database.port: must be greater than or equal to 1024
- - database.maxConnections: must be greater than 0
+ - database.max-connections: must be greater than 0
 ```
 
 By default, Flinkboot prints up to 10 validation violations before summarizing any remaining errors (`... and X more violation(s)`). You can change this limit using the CLI parameter:
@@ -84,16 +83,15 @@ Flinkboot provides the `ValidatableProperties` interface to implement custom cro
 ```java
 package com.company.fraud.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.sekelenao.flinkboot.core.api.validation.ValidatableProperties;
+import com.flinkboot.core.api.validation.ValidatableProperties;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Duration;
 
 public record WindowProperties(
-    @NotNull @JsonProperty("window-size") Duration windowSize,
-    @JsonProperty("slide-duration") Duration slideDuration
+    @NotNull Duration windowSize,
+    Duration slideDuration
 ) implements ValidatableProperties, Serializable {
 
     @Override

@@ -23,8 +23,8 @@ When you invoke `boot.executionEnvironment(JobProperties properties)`, Flinkboot
 
 1. **Fail-Fast Invariant Checks**: Verifies all cross-field constraints (e.g. exponential backoff boundaries, valid state backend classes, and checkpoint storage paths).
 2. **Context Discovery (MiniCluster vs Cluster)**:
-   - **Local WebUI Mode (`local-web-ui.enabled: true`)**: Instantiates an embedded local MiniCluster with the Flink WebUI active (`StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(...)`).
-   - **Cluster Mode (`local-web-ui.enabled: false` or omitted)**: Calls Flink's native `StreamExecutionEnvironment.getExecutionEnvironment(...)` to automatically adapt to your runtime context (Standalone, Kubernetes, YARN, or local testing).
+   - **Local WebUI Mode (`local-web-ui` block declared with `enabled` omitted or `true`)**: Instantiates an embedded local MiniCluster with the Flink WebUI active (`StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(...)`).
+   - **Cluster Mode (`local-web-ui.enabled: false` or block omitted)**: Calls Flink's native `StreamExecutionEnvironment.getExecutionEnvironment(...)` to automatically adapt to your runtime context (Standalone, Kubernetes, YARN, or local testing).
 3. **Automated Setting Application**: Injects RocksDB state backend, unaligned checkpointing, restart strategies, buffer timeouts, and watermark intervals directly onto Flink's native `Configuration` object.
 
 ---
@@ -56,13 +56,15 @@ environment:
     externalized-checkpoint-cleanup: "RETAIN_ON_CANCELLATION"
     unaligned-checkpoints: true
     aligned-checkpoint-timeout: "PT1S"
+    storage: "FILESYSTEM"
     storage-uri: "s3://flink-checkpoints/order-processor"
+    tolerable-checkpoint-failures: 3
 
   state-backend:
     type: "ROCKSDB"
-    checkpoint-storage: "FILESYSTEM"
     incremental: true
     latency-tracking: true
+    changelog: false
 
   restart-strategy:
     type: "EXPONENTIAL_DELAY"
@@ -72,9 +74,11 @@ environment:
       backoff-multiplier: 2.0
       reset-backoff-threshold: "PT1H"
       jitter-factor: 0.1
+      attempts: 10
 
   savepoint-restore:
     savepoint-path: "/mnt/savepoints/savepoint-0001"
+    directory: "/mnt/savepoints"
     allow-non-restored-state: false
     restore-mode: "CLAIM"
 
@@ -111,7 +115,7 @@ Below is the complete specification of all properties supported by `JobPropertie
 | `runtime-mode`            | Enum       | No       | Enum                        | Execution runtime mode: `STREAMING`, `BATCH`, or `AUTOMATIC` (`ExecutionOptions.RUNTIME_MODE`). |
 | `parallelism`             | Integer    | No       | `@Positive`                 | Default execution parallelism (`CoreOptions.DEFAULT_PARALLELISM`). |
 | `max-parallelism`         | Integer    | No       | `@Positive`                 | Maximum parallelism for key groups rescale (`PipelineOptions.MAX_PARALLELISM`). |
-| `buffer-timeout`          | `Duration` | No       | `@DurationMin(millis = 0)`  | Buffer timeout (`ExecutionOptions.BUFFER_TIMEOUT`), e.g. `"PT0.05S"`. |
+| `buffer-timeout`          | `Duration` | No       | `@DurationMin(millis = -1)` | Buffer timeout (`ExecutionOptions.BUFFER_TIMEOUT`), e.g. `"PT0.05S"`. Set to `"-1ms"` (`-1`) to disable periodic flushing for maximum throughput. |
 | `auto-watermark-interval` | `Duration` | No       | `@DurationMin(millis = 0)`  | Periodic watermark emission interval (`PipelineOptions.AUTO_WATERMARK_INTERVAL`), e.g. `"PT0.2S"`. |
 | `object-reuse`            | Boolean    | No       | Boolean                     | Enable object reuse optimization (`PipelineOptions.OBJECT_REUSE`). Defaults to `false`. |
 
@@ -121,16 +125,18 @@ Below is the complete specification of all properties supported by `JobPropertie
 
 | Property Key                      | Type       | Required | Validation                  | Description |
 |:----------------------------------|:-----------|:---------|:----------------------------|:------------|
-| `enabled`                         | Boolean    | No       | Boolean                     | Master switch for checkpointing. Defaults to `true` when block is present. |
+| `enabled`                         | Boolean    | No       | Boolean                     | Master switch for checkpointing. Defaults to `true` when block is present; setting `false` explicitly disables checkpointing (`disableCheckpointing()`). |
 | `interval`                        | `Duration` | No       | `@DurationMin(millis = 1)`  | Time interval between checkpoints (`CheckpointingOptions.CHECKPOINTING_INTERVAL`), e.g. `"PT30S"`. |
 | `mode`                            | Enum       | No       | Enum                        | Consistency mode: `EXACTLY_ONCE` or `AT_LEAST_ONCE`. |
 | `timeout`                         | `Duration` | No       | `@DurationMin(millis = 1)`  | Maximum checkpoint duration before aborting (`CheckpointingOptions.CHECKPOINTING_TIMEOUT`). |
-| `min-pause-between-checkpoints`   | `Duration` | No       | `@DurationMin(millis = 0)`  | Minimum rest duration between consecutive checkpoints. |
+| `min-pause-between-checkpoints`   | `Duration` | No       | `@DurationMin(millis = 0)`  | Minimum rest duration between consecutive checkpoints. Cannot be positive when `max-concurrent-checkpoints > 1`. |
 | `max-concurrent-checkpoints`      | Integer    | No       | `@Positive`                 | Maximum concurrent checkpoints allowed. |
 | `externalized-checkpoint-cleanup` | Enum       | No       | Enum                        | Cleanup retention on cancel: `RETAIN_ON_CANCELLATION`, `DELETE_ON_CANCELLATION`, or `NO_EXTERNALIZED_CHECKPOINTS`. |
-| `unaligned-checkpoints`           | Boolean    | No       | Boolean                     | Enable unaligned checkpoints (`CheckpointingOptions.ENABLE_UNALIGNED`). |
-| `aligned-checkpoint-timeout`      | `Duration` | No       | `@DurationMin(millis = 0)`  | Timeout before switching to unaligned checkpoints, e.g. `"PT1S"`. |
-| `storage-uri`                     | String     | No       | String                      | Target checkpoint storage URI, e.g. `s3://bucket/checkpoints`. |
+| `unaligned-checkpoints`           | Boolean    | No       | Boolean                     | Enable unaligned checkpoints (`CheckpointingOptions.ENABLE_UNALIGNED`). Rejected when `mode` is `AT_LEAST_ONCE`. |
+| `aligned-checkpoint-timeout`      | `Duration` | No       | `@DurationMin(millis = 0)`  | Timeout before switching to unaligned checkpoints, e.g. `"PT1S"`. Requires `unaligned-checkpoints: true`. |
+| `storage`                         | Enum       | No       | Enum                        | Checkpoint storage mechanism: `JOBMANAGER` or `FILESYSTEM`. |
+| `storage-uri`                     | String     | No       | Non-blank `@Pattern`        | Target checkpoint storage URI, e.g. `s3://bucket/checkpoints`. |
+| `tolerable-checkpoint-failures`   | Integer    | No       | `@PositiveOrZero`           | Maximum number of tolerable consecutive checkpoint failures (`CheckpointingOptions.TOLERABLE_FAILURE_NUMBER`). |
 
 ---
 
@@ -138,11 +144,11 @@ Below is the complete specification of all properties supported by `JobPropertie
 
 | Property Key         | Type    | Required                      | Validation | Description |
 |:---------------------|:--------|:------------------------------|:-----------|:------------|
-| `type`               | Enum    | No                            | Enum       | State backend type: `ROCKSDB`, `HASHMAP`, `CHANGELOG`, or `CUSTOM`. |
-| `checkpoint-storage` | Enum    | No                            | Enum       | Storage mechanism: `JOBMANAGER` or `FILESYSTEM`. |
-| `incremental`        | Boolean | No                            | Boolean    | Enable incremental checkpoints for RocksDB (`CheckpointingOptions.INCREMENTAL_CHECKPOINTS`). |
+| `type`               | Enum    | No                            | Enum       | State backend type: `ROCKSDB`, `HASHMAP`, or `CUSTOM`. |
+| `incremental`        | Boolean | No                            | Boolean    | Enable incremental checkpoints for RocksDB (`CheckpointingOptions.INCREMENTAL_CHECKPOINTS`). Rejected when `type` is `HASHMAP`. |
 | `latency-tracking`   | Boolean | No                            | Boolean    | Enable latency tracking metrics for state access (`StateBackendOptions.LATENCY_TRACK_ENABLED`). |
-| `custom-class`       | String  | **Yes** (if `type == CUSTOM`) | String     | Fully qualified class name for custom state backend. Allowed **only** when `type: CUSTOM`. |
+| `changelog`          | Boolean | No                            | Boolean    | Enable the changelog state backend (`state.backend.changelog.enabled`) on top of `HASHMAP` or `ROCKSDB`. |
+| `custom-class`       | String  | **Yes** (if `type == CUSTOM`) | Non-blank `@Pattern` | Fully qualified class name for custom state backend. Allowed **only** when `type: CUSTOM`. |
 
 ---
 
@@ -200,15 +206,17 @@ restart-strategy:
     backoff-multiplier: 2.0
     reset-backoff-threshold: "PT1H"
     jitter-factor: 0.1
+    attempts: 10
 ```
 
 | Property Key | Type | Required | Validation | Description |
 |:---|:---|:---|:---|:---|
-| `initial-backoff` | `Duration` | **Yes** | `@DurationMin(millis = 1)` | Initial backoff duration. |
-| `max-backoff` | `Duration` | **Yes** | Greater than or equal to `initial-backoff` | Maximum cap for backoff duration. |
+| `initial-backoff` | `Duration` | Conditional | `@DurationMin(millis = 1)` | Initial backoff duration. Must be paired with `max-backoff` if specified. |
+| `max-backoff` | `Duration` | Conditional | `>= initial-backoff` | Maximum cap for backoff duration. Must be paired with `initial-backoff` if specified. |
 | `backoff-multiplier` | Double | No | Strictly `> 1.0` | Exponential multiplier for consecutive failures. Defaults to `2.0`. |
 | `reset-backoff-threshold` | `Duration` | No | `@DurationMin(millis = 1)` | Failure-free uptime required to reset backoff. Defaults to `PT1H`. |
 | `jitter-factor` | Double | No | `0.0 <= x <= 1.0` | Random jitter ratio added to backoff. Defaults to `0.1`. |
+| `attempts` | Integer | No | `@Positive` | Maximum number of restart attempts (`RestartStrategyOptions.RESTART_STRATEGY_EXPONENTIAL_DELAY_ATTEMPTS`). |
 
 ---
 
@@ -217,15 +225,17 @@ restart-strategy:
 ```yaml
 savepoint-restore:
   savepoint-path: "/mnt/savepoints/savepoint-0001"
+  directory: "/mnt/savepoints"
   allow-non-restored-state: false
   restore-mode: "CLAIM"
 ```
 
 | Property Key | Type | Required | Validation | Description |
 |:---|:---|:---|:---|:---|
-| `savepoint-path` | String | **Yes** | `@NotBlank` | Path to savepoint or initial checkpoint directory. |
+| `savepoint-path` | String | Conditional | Non-blank `@Pattern` | Path to savepoint or initial checkpoint directory. At least one of `savepoint-path` or `directory` must be specified. |
+| `directory` | String | Conditional | Non-blank `@Pattern` | Default target directory for writing savepoints (`state.savepoints.dir`). At least one of `savepoint-path` or `directory` must be specified. |
 | `allow-non-restored-state` | Boolean | No | Boolean | Start even if savepoint contains unmapped subtask state. |
-| `restore-mode` | Enum | No | Enum | Restore mode: `CLAIM`, `NO_CLAIM`, or `LEGACY`. |
+| `restore-mode` | Enum | No | Enum | Restore mode: `CLAIM` or `NO_CLAIM`. |
 
 ---
 
@@ -240,9 +250,9 @@ local-web-ui:
 
 | Property Key | Type | Required | Validation | Description |
 |:---|:---|:---|:---|:---|
-| `enabled` | Boolean | **Yes** (if block present) | `@NotNull` | Starts a local Flink MiniCluster with the WebUI dashboard active during IDE testing. |
+| `enabled` | Boolean | No | Boolean | Starts a local Flink MiniCluster with the WebUI dashboard active during IDE testing. Defaults to `true` when the `local-web-ui` block is declared. |
 | `port` | Integer | No | `@Range(min = 0, max = 65535)` | WebUI REST port. Defaults to `8081`. Set to `0` for dynamic port allocation. |
-| `bind-address` | String | No | `@NotBlank` | WebUI host bind address. Defaults to `localhost`. |
+| `bind-address` | String | No | Non-blank `@Pattern` | WebUI host bind address. Defaults to `localhost`. |
 
 Enabling `local-web-ui.enabled: true` requires `org.apache.flink:flink-runtime-web` on the classpath:
 
@@ -273,5 +283,5 @@ environment:
 
 | Property Key | Type | Required | Description |
 |:---|:---|:---|:---|
-| `properties` | `Map<String, String>` | No | Free-form key-value map mapped directly to Flink's native `Configuration`. Properties defined here take direct precedence over typed YAML properties in case of conflict. |
+| `properties` | `Map<@NotBlank String, @NotNull String>` | No | Free-form key-value map mapped directly to Flink's native `Configuration`. Keys must be non-blank; empty string values (`""`) are allowed. Properties defined here take direct precedence over typed YAML properties in case of conflict. |
 
