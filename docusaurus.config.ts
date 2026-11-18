@@ -170,12 +170,12 @@ const config: Config = {
             '@id': 'https://flinkboot.com/#software',
             'name': 'Flinkboot',
             'applicationCategory': 'DeveloperApplication',
-            'operatingSystem': 'Java 11, Java 17, Java 21',
+            'operatingSystem': 'Java 17, Java 21',
             'programmingLanguage': {
               '@type': 'ComputerLanguage',
               'name': 'Java',
             },
-            'softwareVersion': '0.6.0-1.20',
+            'softwareVersion': '0.6.0-2.3',
             'url': 'https://flinkboot.com',
             'downloadUrl': 'https://central.sonatype.com/artifact/com.flinkboot/flinkboot-core',
             'codeRepository': 'https://github.com/Sekelenao/Flinkboot',
@@ -200,12 +200,17 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           routeBasePath: 'docs',
           editUrl: 'https://github.com/Sekelenao/Flinkboot-Documentation/tree/main/',
-          lastVersion: '0.6.0',
+          lastVersion: '0.6.0-2.3',
           includeCurrentVersion: false,
           versions: {
+            '0.6.0-2.3': {
+              label: '0.6.0-2.3',
+              path: '',
+              banner: 'none',
+            },
             '0.6.0': {
               label: '0.6.0-1.20',
-              path: '',
+              path: '0.6.0-1.20',
               banner: 'none',
             },
             '0.5.0': {

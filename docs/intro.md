@@ -222,9 +222,9 @@ KafkaSource<OrderEvent> source = KafkaSource.<OrderEvent>builder()
 
 ---
 
-## 5. Native collection & JDK serialization
+## 5. Native JDK type serialization
 
-In vanilla Flink, collections like `List<String>` inside a POJO silently fall back to Kryo serialization because Flink's type extractor cannot resolve generic parameters. Flinkboot provides turnkey `TypeInfoFactory` classes to guarantee high-throughput, native Flink serializers.
+In vanilla Flink, JDK date-time types like `java.time.Duration` inside a POJO silently fall back to Kryo serialization. Flinkboot provides turnkey `TypeInfoFactory` classes to guarantee high-throughput, native Flink serializers.
 
 <Tabs>
   <TabItem value="flinkboot" label="With Flinkboot" default>
@@ -233,9 +233,9 @@ In vanilla Flink, collections like `List<String>` inside a POJO silently fall ba
 public class OrderEvent {
     public String id;
 
-    // Instructs Flink to resolve List<E> natively as Types.LIST(Types.STRING)
-    @TypeInfo(ListTypeInfoFactory.class)
-    public List<String> tags;
+    // Instructs Flink to serialize Duration with Flinkboot's custom 12-byte DurationSerializer
+    @TypeInfo(DurationTypeInfoFactory.class)
+    public Duration processingTimeout;
 }
 ```
 
@@ -245,12 +245,12 @@ public class OrderEvent {
 ```java
 public class OrderEvent {
     public String id;
-    public List<String> tags; // Flink cannot extract generic parameter E!
+    public Duration processingTimeout; // Flink has no built-in TypeInformation for Duration!
 }
 
 // In standard Flink, TypeInformation.of(OrderEvent.class) silently assigns
-// GenericTypeInfo (Kryo) to the tags field, degrading streaming throughput
-// by 3x to 10x and breaking savepoint state schema evolution.
+// GenericTypeInfo (Kryo) to the processingTimeout field, degrading streaming
+// throughput by 3x to 10x and breaking savepoint state schema evolution.
 ```
 
   </TabItem>

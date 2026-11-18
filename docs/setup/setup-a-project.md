@@ -20,7 +20,7 @@ Add the Flinkboot Bill of Materials (BOM) to your project's `<dependencyManageme
         <dependency>
             <groupId>com.flinkboot</groupId>
             <artifactId>flinkboot</artifactId>
-            <version>0.6.0-1.20</version>
+            <version>0.6.0-2.3</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>

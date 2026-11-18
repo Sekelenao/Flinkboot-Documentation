@@ -6,7 +6,7 @@ description: Step-by-step guide to upgrading Flinkboot applications from 0.5.0-1
 
 # Migrating from 0.5.0 to 0.6.0
 
-This guide covers all breaking changes, behavioral updates, and stricter validation rules introduced in **Flinkboot `0.6.0-1.20`**, along with exact migration steps from `0.5.0-1.20`.
+This guide covers all breaking changes, behavioral updates, and stricter validation rules introduced in **Flinkboot `0.6.0`** (`0.6.0-2.3` and `0.6.0-1.20`), along with exact migration steps from `0.5.0-1.20`.
 
 ---
 
@@ -28,11 +28,11 @@ Update the BOM and all Flinkboot dependencies from `io.github.sekelenao` to `com
     <scope>import</scope>
 </dependency>
 
-<!-- After (0.6.0-1.20) -->
+<!-- After (0.6.0-2.3) -->
 <dependency>
     <groupId>com.flinkboot</groupId>
     <artifactId>flinkboot</artifactId>
-    <version>0.6.0-1.20</version>
+    <version>0.6.0-2.3</version>
     <type>pom</type>
     <scope>import</scope>
 </dependency>
@@ -213,3 +213,13 @@ In YAML, `group-id` is now optional unless `starting-offsets` or `stopping-offse
 ### Blank keys in connector `properties` maps
 
 Blank keys in `kafka-source.properties`, `kafka-sink.properties`, `fluss-source.properties`, and `fluss-sink.properties` are now rejected with `ConfigurationValidationException` (empty string values `""` remain allowed).
+
+---
+
+## 5. Flink 2.3 specific changes (`0.6.0-2.3`)
+
+If you are targeting Apache Flink `2.3.0` with **`0.6.0-2.3`**, note these additional requirements and removals:
+
+* **Java 17+ baseline**: `0.6.0-2.3` targets Flink `2.3.0` (`flink-connector-kafka` `5.0.0-2.2`, `fluss-flink-2.3` `1.0.0`) and requires **Java 17 or later**.
+* **Removal of `com.flinkboot.core.api.typing.collection`**: `ListTypeInfoFactory` and `MapTypeInfoFactory` have been removed, as Flink `2.3` natively extracts `List` and `Map` types without requiring `@TypeInfo` annotations. Remove `@TypeInfo(ListTypeInfoFactory.class)` and `@TypeInfo(MapTypeInfoFactory.class)` from your POJO fields.
+* **Removal of Flink 1.x legacy overloads**: `DurationTypeInfo#createSerializer(ExecutionConfig)` and `CollectingSink#createWriter(InitContext)` have been removed along with Flink `1.x` compatibility. Use `DurationTypeInfo#createSerializer(SerializerConfig)` and `CollectingSink#createWriter(WriterInitContext)` instead.

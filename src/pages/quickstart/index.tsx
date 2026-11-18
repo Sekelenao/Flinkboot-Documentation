@@ -22,7 +22,7 @@ export default function Quickstart(): ReactNode {
 
           <p className={styles.prereqText}>
             <span className={styles.prereqLabel}>Prerequisite:</span>
-            <span className={styles.prereqValue}>IntelliJ IDEA (with Java 11+)</span>
+            <span className={styles.prereqValue}>IntelliJ IDEA (with Java 17+)</span>
           </p>
         </section>
 

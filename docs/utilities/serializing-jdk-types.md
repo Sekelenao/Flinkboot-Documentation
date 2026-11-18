@@ -1,14 +1,16 @@
 ---
 title: Serializing JDK types
 sidebar_label: Serializing JDK types
-description: Native Flink serialization for LocalDateTime, LocalDate, Duration, and collections using Flinkboot TypeInfoFactory.
+description: Native Flink serialization for LocalDateTime, LocalDate, LocalTime, and Duration using Flinkboot TypeInfoFactory.
 ---
 
 # Serializing JDK types
 
-In Apache Flink, standard JDK date-time types and collections default to Kryo serialization, which is slower, less space-efficient, and risky for state schema evolution.
+In Apache Flink, standard JDK date-time types default to Kryo serialization, which is slower, less space-efficient, and risky for state schema evolution.
 
 Flinkboot provides built-in, optimized `TypeInfoFactory` classes to enable native Flink serialization for these types.
+
+> **Note (Flink 2.3+):** Apache Flink `2.3` natively extracts `java.util.List<E>` and `java.util.Map<K, V>` types without requiring `@TypeInfo` annotations. Consequently, `ListTypeInfoFactory` and `MapTypeInfoFactory` were removed in `0.6.0-2.3`.
 
 ---
 
@@ -20,8 +22,6 @@ Flinkboot provides built-in, optimized `TypeInfoFactory` classes to enable nativ
 | `java.time.LocalDate`     | `LocalDateTypeInfoFactory`     | `Types.LOCAL_DATE`                  |
 | `java.time.LocalTime`     | `LocalTimeTypeInfoFactory`     | `Types.LOCAL_TIME`                  |
 | `java.time.Duration`      | `DurationTypeInfoFactory`      | Custom 12-byte `DurationSerializer` |
-| `java.util.List<E>`       | `ListTypeInfoFactory`          | `Types.LIST(elementType)`           |
-| `java.util.Map<K, V>`     | `MapTypeInfoFactory`           | `Types.MAP(keyType, valueType)`     |
 
 ---
 
@@ -30,8 +30,6 @@ Flinkboot provides built-in, optimized `TypeInfoFactory` classes to enable nativ
 Annotate your POJO fields with Flink's `@TypeInfo` annotation:
 
 ```java
-import com.flinkboot.core.api.typing.collection.ListTypeInfoFactory;
-import com.flinkboot.core.api.typing.collection.MapTypeInfoFactory;
 import com.flinkboot.core.api.typing.time.DurationTypeInfoFactory;
 import com.flinkboot.core.api.typing.time.LocalDateTypeInfoFactory;
 import com.flinkboot.core.api.typing.time.LocalDateTimeTypeInfoFactory;
@@ -42,8 +40,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
 
 public class Example {
 
@@ -58,12 +54,6 @@ public class Example {
 
     @TypeInfo(DurationTypeInfoFactory.class)
     public Duration duration;
-
-    @TypeInfo(ListTypeInfoFactory.class)
-    public List<String> tags;
-
-    @TypeInfo(MapTypeInfoFactory.class)
-    public Map<String, Integer> metrics;
 }
 ```
 
